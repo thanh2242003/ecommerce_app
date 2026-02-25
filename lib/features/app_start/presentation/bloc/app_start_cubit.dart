@@ -1,16 +1,23 @@
 import 'package:ecommerce_app/features/app_start/presentation/bloc/app_start_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppStartCubit extends Cubit<AppStartState> {
   AppStartCubit() : super(AppStartLoading()) {
     checkAppStart();
   }
 
+  /// CHECK APP START
   Future<void> checkAppStart() async {
     await Future.delayed(const Duration(seconds: 2));
-    //thay bang token
-    final bool seenOnboarding = false;
-    final bool isLoggedIn = false;
+
+    final prefs = await SharedPreferences.getInstance();
+
+    final bool seenOnboarding =
+        prefs.getBool("seen_onboarding") ?? false;
+
+    final bool isLoggedIn =
+        prefs.getBool("is_logged_in") ?? false;
 
     if (!seenOnboarding) {
       emit(AppStartOnboarding());
@@ -21,16 +28,30 @@ class AppStartCubit extends Cubit<AppStartState> {
     }
   }
 
-  void completeOnboarding() {
+  /// COMPLETE ONBOARDING
+  Future<void> completeOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool("seen_onboarding", true);
+
     emit(AppStartUnauthenticated());
   }
 
-  void goToHome() {
+  /// LOGIN SUCCESS
+  Future<void> goToHome() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool("is_logged_in", true);
+
     emit(AppStartAuthenticated());
   }
 
-  void goToLogin() {
+  /// LOGOUT
+  Future<void> goToLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool("is_logged_in", false);
+
     emit(AppStartUnauthenticated());
   }
 }
-
