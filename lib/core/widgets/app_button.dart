@@ -10,6 +10,7 @@ class AppButton extends StatelessWidget {
     this.iconPath,
     this.textColor = Colors.black,
     this.enabled = true,
+    this.textStyle,
   });
 
   final String data;
@@ -19,6 +20,8 @@ class AppButton extends StatelessWidget {
   final Color textColor;
   final String? iconPath;
   final bool enabled;
+  final TextStyle? textStyle;
+
 
   @override
   Widget build(BuildContext context) {
@@ -56,11 +59,7 @@ class AppButton extends StatelessWidget {
       )
           : Text(
         data,
-        style: TextStyle(
-          color: effectiveText,
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
-        ),
+        style: textStyle
       ),
     );
   }
