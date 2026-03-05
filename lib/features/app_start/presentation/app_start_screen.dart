@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../auth/presentation/pages/login_screen.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../home/presentation/pages/main_screen.dart';
 import '../../onboarding/presentation/pages/onboarding_screen.dart';
 import 'bloc/app_start_cubit.dart';
 
@@ -25,7 +25,7 @@ class AppStartScreen extends StatelessWidget {
             return LoginScreen();
           }
           else if (state is AppStartAuthenticated) {
-            return HomeScreen();
+            return MainScreen();
           }
           else {
             return SizedBox();
