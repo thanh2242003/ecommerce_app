@@ -5,8 +5,8 @@ import '../widgets/header.dart';
 import '../widgets/new_product.dart';
 import '../widgets/top_selling.dart';
 
-class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

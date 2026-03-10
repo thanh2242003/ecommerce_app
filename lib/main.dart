@@ -7,7 +7,7 @@ import 'features/app_start/presentation/bloc/app_start_cubit.dart';
 import 'features/auth/presentation/bloc/auth_cubit.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/pages/login_screen.dart';
-import 'features/home/presentation/pages/main_screen.dart';
+import 'features/home/presentation/pages/home_screen.dart';
 import 'features/product/presentation/bloc/product_cubit.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'features/theme/presentation/bloc/theme_cubit.dart';
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
             darkTheme: AppThemes.dark,
             themeMode: themeState.themeMode,
             //home: const AppStartScreen(),
-            home: const MainScreen(),
+            home: const HomeScreen(),
           );
         },
       ),
