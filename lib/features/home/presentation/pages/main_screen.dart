@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/categories.dart';
 import '../widgets/header.dart';
 
 class MainScreen extends StatelessWidget {
@@ -12,8 +13,8 @@ class MainScreen extends StatelessWidget {
         child: Column(
           children: [
             Header(),
-            //Categories(),
-            //NewIn(),
+            Categories(),
+            //NewProduct(),
             //TopSelling(),
           ],
         ),

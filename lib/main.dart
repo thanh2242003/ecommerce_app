@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/features/categories/presentation/bloc/categories_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/theme/app_theme.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => AppStartCubit()),
         BlocProvider(create: (_) => AuthCubit()),
         BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(create: (_) => CategoriesCubit())
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
