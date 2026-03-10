@@ -8,6 +8,7 @@ import 'features/auth/presentation/bloc/auth_cubit.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/pages/login_screen.dart';
 import 'features/home/presentation/pages/main_screen.dart';
+import 'features/product/presentation/bloc/product_cubit.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'features/theme/presentation/bloc/theme_cubit.dart';
 import 'features/theme/presentation/bloc/theme_state.dart';
@@ -27,7 +28,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => AppStartCubit()),
         BlocProvider(create: (_) => AuthCubit()),
         BlocProvider(create: (_) => ThemeCubit()),
-        BlocProvider(create: (_) => CategoriesCubit())
+        BlocProvider(create: (_) => CategoriesCubit()),
+        BlocProvider(create: (_) => ProductCubit())
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {

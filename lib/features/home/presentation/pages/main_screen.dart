@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../widgets/categories.dart';
 import '../widgets/header.dart';
+import '../widgets/new_product.dart';
+import '../widgets/top_selling.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -14,8 +16,8 @@ class MainScreen extends StatelessWidget {
           children: [
             Header(),
             Categories(),
-            //NewProduct(),
-            //TopSelling(),
+            TopSelling(),
+            NewProduct(),
           ],
         ),
       ),
