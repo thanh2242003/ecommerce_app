@@ -81,7 +81,8 @@ Widget _categories(BuildContext context,List<CategoryEntity> categories) {
                 color: Colors.white,
                 image: DecorationImage(
                   //sua thanh anh trong backend
-                  image: NetworkImage(categories[index].image),
+                  //image: NetworkImage(categories[index].image),
+                  image: AssetImage("assets/images/${categories[index].image}"),
                   fit: BoxFit.cover,
                 ),
               ),

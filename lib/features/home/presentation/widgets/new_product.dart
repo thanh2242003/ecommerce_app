@@ -6,7 +6,7 @@ import '../../../categories/domain/entities/category.dart';
 import '../../../product/presentation/bloc/product_cubit.dart';
 import '../../../product/presentation/bloc/product_state.dart';
 import '../../../product/presentation/widgets/product_card.dart';
-import '../../domain/entities/product.dart';
+import '../../../product/domain/entities/product.dart';
 
 class NewProduct extends StatelessWidget {
   const NewProduct({super.key});
