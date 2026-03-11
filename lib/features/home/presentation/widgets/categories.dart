@@ -38,26 +38,29 @@ class Categories extends StatelessWidget {
 }
 
 Widget _seeAll(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        "Categories",
-        style: AppTextStyle.withColor(AppTextStyle.bodyLarge, Colors.black),
-      ),
-      GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => CategoriesScreen()),
-          );
-        },
-        child: Text(
-          "See All",
-          style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Categories",
+          style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
         ),
-      ),
-    ],
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => CategoriesScreen()),
+            );
+          },
+          child: Text(
+            "See All",
+            style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
+          ),
+        ),
+      ],
+    ),
   );
 }
 
@@ -66,6 +69,7 @@ Widget _categories(BuildContext context,List<CategoryEntity> categories) {
     height: 100,
     child: ListView.separated(
       scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       itemBuilder: (context, index) {
         return Column(
           children: [

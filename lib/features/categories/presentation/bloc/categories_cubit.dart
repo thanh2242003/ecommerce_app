@@ -5,7 +5,9 @@ import 'categories_state.dart';
 
 class CategoriesCubit extends Cubit<CategoriesState> {
   final GetCategoriesUseCase getCategories;
-  CategoriesCubit(this.getCategories) : super(CategoriesInitial());
+  CategoriesCubit(this.getCategories) : super(CategoriesInitial()){
+    loadCategories();
+  }
 
   Future<void> loadCategories() async {
     try{

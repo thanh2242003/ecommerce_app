@@ -7,6 +7,9 @@ import 'features/app_start/presentation/bloc/app_start_cubit.dart';
 import 'features/auth/presentation/bloc/auth_cubit.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/pages/login_screen.dart';
+import 'features/categories/data/datasources/categories_remote_data_source.dart';
+import 'features/categories/domain/repositories/categories_repository_impl.dart';
+import 'features/categories/domain/usecases/get_categories_usecase.dart';
 import 'features/home/presentation/pages/home_screen.dart';
 import 'features/main/presentation/pages/main_screen.dart';
 import 'features/product/presentation/bloc/product_cubit.dart';
@@ -29,8 +32,14 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => AppStartCubit()),
         BlocProvider(create: (_) => AuthCubit()),
         BlocProvider(create: (_) => ThemeCubit()),
-        BlocProvider(create: (_) => CategoriesCubit()),
-        BlocProvider(create: (_) => ProductCubit())
+        BlocProvider(
+          create: (_) => CategoriesCubit(
+            GetCategoriesUseCase(
+              CategoriesRepositoryImpl(CategoriesRemoteDataSourceImpl()),
+            ),
+          ),
+        ),
+        BlocProvider(create: (_) => ProductCubit()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
