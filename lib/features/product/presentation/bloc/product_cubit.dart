@@ -7,7 +7,9 @@ class ProductCubit extends Cubit<ProductState> {
 
   final GetTopSellingProducts getTopSellingProducts;
 
-  ProductCubit(this.getTopSellingProducts) : super(ProductInitial());
+  ProductCubit(this.getTopSellingProducts) : super(ProductInitial()){
+    loadProducts();
+  }
 
   void loadProducts() async {
 
