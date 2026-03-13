@@ -40,26 +40,29 @@ class TopSelling extends StatelessWidget {
 }
 
 Widget _seeAll(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        "Top Selling",
-        style: AppTextStyle.withColor(AppTextStyle.bodyLarge, Colors.black),
-      ),
-      GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => TopSellingScreen()),
-          );
-        },
-        child: Text(
-          "See All",
-          style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Top Selling",
+          style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
         ),
-      ),
-    ],
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => TopSellingScreen()),
+            );
+          },
+          child: Text(
+            "See All",
+            style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
+          ),
+        ),
+      ],
+    ),
   );
 }
 
@@ -70,7 +73,7 @@ Widget _products(BuildContext context,List<ProductEntity> products) {
       shrinkWrap: true,
       scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
-        return ProductCard(product: products[index],);
+        return ProductCard(productEntity: products[index],);
       },
       separatorBuilder: (context, index) => const SizedBox(width: 15),
       itemCount: products.length,
