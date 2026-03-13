@@ -26,11 +26,11 @@ class AppTextStyle {
     fontWeight: FontWeight.w400,
   );
   static TextStyle bodyMedium = GoogleFonts.poppins(
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
   );
   static TextStyle bodySmall = GoogleFonts.poppins(
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
   );
 
