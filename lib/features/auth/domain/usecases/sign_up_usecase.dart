@@ -1,6 +1,7 @@
 import '../repositories/auth_repository.dart';
 import '../../data/models/auth_response_model.dart';
 
+//usecase
 class SignUpUseCase {
   final AuthRepository repository;
 
