@@ -1,5 +1,5 @@
-import '../../data/models/product_model.dart';
-import '../../data/sources/product_api_service.dart';
+import '../models/product_model.dart';
+import '../sources/product_api_service.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
 
