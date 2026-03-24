@@ -1,5 +1,5 @@
 import 'package:ecommerce_app/features/categories/data/datasources/categories_remote_data_source.dart';
-import 'package:ecommerce_app/features/categories/domain/repositories/categories_repository_impl.dart';
+import 'package:ecommerce_app/features/categories/data/repositories/categories_repository_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
