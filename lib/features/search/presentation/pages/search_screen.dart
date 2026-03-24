@@ -6,10 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/basic_app_bar.dart';
 import '../../../categories/domain/entities/category.dart';
-import '../../../product/domain/entities/product.dart';
 import '../../../product/data/repositories/product_repository_impl.dart';
 import '../../../product/presentation/pages/top_selling_screen.dart';
-import '../../../product/presentation/widgets/product_card.dart';
+import '../../../product/presentation/widgets/product_gridview.dart';
 import '../bloc/search_cubit.dart';
 import '../bloc/search_state.dart';
 import '../widgets/search_field.dart';
@@ -42,7 +41,7 @@ class SearchScreen extends StatelessWidget {
             if (state is SearchProductsLoaded) {
               return state.products.isEmpty
                   ? _notFound()
-                  : _products(state.products);
+                  : ProductGridView(products: state.products,);
             }
             if (state is SearchError) {
               return Center(child: Text(state.message));
@@ -100,23 +99,6 @@ class SearchScreen extends StatelessWidget {
       },
       separatorBuilder: (context, index) => const SizedBox(height: 10),
       itemCount: categories.length,
-    );
-  }
-
-  Widget _products(List<ProductEntity> products) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: products.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 0.6,
-      ),
-      itemBuilder: (context, index) {
-        final product = products[index];
-        return ProductCard(productEntity: product);
-      },
     );
   }
 
