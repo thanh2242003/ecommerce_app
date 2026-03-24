@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/core/utils/app_number_format.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
@@ -62,17 +63,18 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Text(
                           productEntity.discountedPrice == 0
-                              ? '${productEntity.price}\$'
-                              : "${productEntity.discountedPrice}\$",
+                              ? AppNumberFormat.format(productEntity.price)
+                              : AppNumberFormat.format(productEntity.discountedPrice),
                           style: AppTextStyle.withColor(
                             AppTextStyle.bodySmall,
                             Colors.black,
                           ),
                         ),
+
                         const SizedBox(width: 10,),
                         Text(productEntity.discountedPrice == 0
                             ? ''
-                            : "${productEntity.price}\$",
+                            : AppNumberFormat.format(productEntity.price),
                           style: AppTextStyle.withColor(
                             AppTextStyle.bodySmall,
                             Colors.grey,
