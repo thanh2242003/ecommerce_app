@@ -1,23 +1,27 @@
-
 import 'color.dart';
+import 'review.dart';
 
 class ProductEntity {
   final String categoryId;
-  final List < ProductColorEntity > colors;
-  //final Timestamp createdDate;
-  final num discountedPrice;
+  final List<ProductColorEntity> colors;
+  //final DateTime createdAt;
+  final int discountedPrice;
   final int gender;
-  final List < String > images;
-  final num price;
-  final List < String > sizes;
+  final List<String> images;
+  final int price;
+  final List<String> sizes;
   final String productId;
   final int salesNumber;
   final String title;
+  final String description;
+  final double ratings;
+  final List<ReviewEntity> reviews;
+  final int totalReviews;
 
   ProductEntity({
     required this.categoryId,
     required this.colors,
-    //required this.createdDate,
+    //required this.createdAt,
     required this.discountedPrice,
     required this.gender,
     required this.images,
@@ -25,7 +29,10 @@ class ProductEntity {
     required this.sizes,
     required this.productId,
     required this.salesNumber,
-    required this.title
+    required this.title,
+    required this.description,
+    required this.ratings,
+    required this.reviews,
+    required this.totalReviews,
   });
-
 }

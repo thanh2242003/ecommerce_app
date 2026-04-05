@@ -44,7 +44,7 @@ Widget _seeAll(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Categories",
+          "Danh mục",
           style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
         ),
         GestureDetector(
@@ -55,7 +55,7 @@ Widget _seeAll(BuildContext context) {
             );
           },
           child: Text(
-            "See All",
+            "Xem thêm",
             style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
           ),
         ),
@@ -74,8 +74,8 @@ Widget _categories(BuildContext context,List<CategoryEntity> categories) {
         return Column(
           children: [
             Container(
-              height: 60,
-              width: 60,
+              height: 70,
+              width: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white,

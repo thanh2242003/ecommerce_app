@@ -15,7 +15,7 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.primaryColor,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 30, bottom: 20),
       //se thay bang state, cubit cua cart
       child: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {

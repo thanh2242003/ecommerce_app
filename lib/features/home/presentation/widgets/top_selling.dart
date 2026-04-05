@@ -8,8 +8,14 @@ import '../../../product/presentation/bloc/product_state.dart';
 import '../../../product/presentation/widgets/product_card.dart';
 import '../../../product/domain/entities/product.dart';
 
-class TopSelling extends StatelessWidget {
+class TopSelling extends StatefulWidget {
   const TopSelling({super.key});
+
+  @override
+  State<TopSelling> createState() => _TopSellingState();
+}
+
+class _TopSellingState extends State<TopSelling> {
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +28,11 @@ class TopSelling extends StatelessWidget {
             children: [
               _seeAll(context),
               SizedBox(height: 20),
-              _products(context,state.products),
+              _products(context,state.products.take(3).toList()),
             ],
           );
         }
         return const SizedBox();
-        // return Column(
-        //   children: [
-        //     _seeAll(context),
-        //     SizedBox(height: 20),
-        //     _categories(state.categories),
-        //   ],
-        // );
       },
     );
   }
@@ -46,7 +45,7 @@ Widget _seeAll(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Top Selling",
+          "Bán chạy",
           style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
         ),
         GestureDetector(
@@ -57,7 +56,7 @@ Widget _seeAll(BuildContext context) {
             );
           },
           child: Text(
-            "See All",
+            "Xem thêm",
             style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
           ),
         ),
@@ -65,18 +64,44 @@ Widget _seeAll(BuildContext context) {
     ),
   );
 }
+Widget _products(BuildContext context, List<ProductEntity> products) {
+  // Nếu không có sản phẩm nào, có thể hiện thông báo hoặc ẩn đi
+  if (products.isEmpty) {
+    return const SizedBox(
+      height: 200,
+      child: Center(child: Text("No products available")),
+    );
+  }
 
-Widget _products(BuildContext context,List<ProductEntity> products) {
   return SizedBox(
-    height: 300,
+    height: 300, // Đảm bảo chiều cao này đủ chứa ProductCard
     child: ListView.separated(
-      shrinkWrap: true,
+      // Thêm padding để căn chỉnh đều với tiêu đề "Top Selling"
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
-        return ProductCard(productEntity: products[index],);
+        // Đảm bảo ProductCard bên trong có chiều rộng (width) cố định
+        return ProductCard(
+          productEntity: products[index],
+        );
       },
       separatorBuilder: (context, index) => const SizedBox(width: 15),
       itemCount: products.length,
     ),
   );
 }
+
+// Widget _products(BuildContext context,List<ProductEntity> products) {
+//   return SizedBox(
+//     height: 300,
+//     child: ListView.separated(
+//       shrinkWrap: true,
+//       scrollDirection: Axis.horizontal,
+//       itemBuilder: (context, index) {
+//         return ProductCard(productEntity: products[index],);
+//       },
+//       separatorBuilder: (context, index) => const SizedBox(width: 15),
+//       itemCount: products.length,
+//     ),
+//   );
+// }

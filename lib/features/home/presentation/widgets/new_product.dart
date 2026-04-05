@@ -22,7 +22,7 @@ class NewProduct extends StatelessWidget {
             children: [
               _seeAll(context),
               SizedBox(height: 20),
-              _products(context,state.products),
+              _products(context,state.products.take(3).toList()),
             ],
           );
         }
@@ -46,7 +46,7 @@ Widget _seeAll(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "New In",
+          "Hàng mới",
           style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
         ),
         GestureDetector(
@@ -58,7 +58,7 @@ Widget _seeAll(BuildContext context) {
             );
           },
           child: Text(
-            "See All",
+            "Xem thêm",
             style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/core/utils/app_number_format.dart';
+import 'package:ecommerce_app/features/product/presentation/pages/product_detail_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
@@ -13,7 +14,9 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       //tap vao thi chuyen den product detail tuong ung
-      onTap: () {},
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(productEntity: productEntity,)));},
       child: Container(
         width: 180,
         decoration: BoxDecoration(
@@ -64,7 +67,8 @@ class ProductCard extends StatelessWidget {
                         Text(
                           productEntity.discountedPrice == 0
                               ? AppNumberFormat.format(productEntity.price)
-                              : AppNumberFormat.format(productEntity.discountedPrice),
+                              : AppNumberFormat.format(
+                              productEntity.discountedPrice),
                           style: AppTextStyle.withColor(
                             AppTextStyle.bodySmall,
                             Colors.black,

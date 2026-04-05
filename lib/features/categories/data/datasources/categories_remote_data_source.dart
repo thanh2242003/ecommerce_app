@@ -32,9 +32,11 @@ class CategoriesRemoteDataSourceImpl implements CategoriesRemoteDataSource {
     await Future.delayed(const Duration(seconds: 1));
 
     return [
-      CategoryModel(categoryId: "1", title: "Clothes", image: "shoe.jpg"),
-      CategoryModel(categoryId: "2", title: "Toys", image: "shoe2.jpg"),
-      CategoryModel(categoryId: "3", title: "Shoes", image: "shoes2.jpg"),
+      CategoryModel(categoryId: "1", title: "Quần áo", image: "shoe.jpg"),
+      CategoryModel(categoryId: "2", title: "Đồ chơi", image: "shoe2.jpg"),
+      CategoryModel(categoryId: "3", title: "Giày dép", image: "shoes2.jpg"),
+      CategoryModel(categoryId: "4", title: "Đồ ăn", image: "shoes2.jpg"),
+      CategoryModel(categoryId: "5", title: "Khác", image: "shoes2.jpg"),
     ];
   }
 }

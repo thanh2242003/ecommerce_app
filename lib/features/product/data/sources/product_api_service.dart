@@ -3,12 +3,11 @@ import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
 
 class ProductApiService {
-  static const String baseUrl = 'http://10.0.2.2:3000/v1/api/product';
+  static const String baseUrl =
+      'http://192.168.50.215:3000/v1/api/product'; //'http://10.0.2.2:3000/v1/api/product';
 
   // ================= HEADERS =================
-  static Map<String, String> _headers({
-    String? token,
-  }) {
+  static Map<String, String> _headers({String? token}) {
     return {
       'Content-Type': 'application/json',
       if (token != null) 'authorization': token,
@@ -20,10 +19,9 @@ class ProductApiService {
     int page = 1,
     int limit = 10,
   }) async {
-    final uri = Uri.parse(baseUrl).replace(queryParameters: {
-      'page': page.toString(),
-      'limit': limit.toString(),
-    });
+    final uri = Uri.parse(baseUrl).replace(
+      queryParameters: {'page': page.toString(), 'limit': limit.toString()},
+    );
 
     final response = await http.get(uri, headers: _headers());
 
@@ -69,9 +67,7 @@ class ProductApiService {
   }
 
   // ================= TOP SELLING =================
-  static Future<List<ProductModel>> getTopSelling({
-    int limit = 10,
-  }) async {
+  static Future<List<ProductModel>> getTopSelling({int limit = 10}) async {
     final response = await http.get(
       Uri.parse('$baseUrl/top-selling?limit=$limit'),
       headers: _headers(),
@@ -85,7 +81,4 @@ class ProductApiService {
       throw Exception('Top selling failed: ${response.body}');
     }
   }
-
-
-
 }
