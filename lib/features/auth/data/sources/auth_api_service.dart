@@ -1,9 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ecommerce_app/features/auth/data/models/auth_response_model.dart';
+import 'package:ecommerce_app/core/storage/token_storage.dart';
 
 class AuthApiService {
-  static const String baseUrl = 'http://10.0.2.2:3000/v1/api';
+  static const String baseUrl =
+      'http://192.168.50.215:3000/v1/api'; //'http://10.0.2.2:3000/v1/api';
+  final TokenStorage tokenStorage;
+
+  AuthApiService({required this.tokenStorage});
 
   Future<AuthResponseModel> signUp({
     required String name,
@@ -13,11 +18,7 @@ class AuthApiService {
     final response = await http.post(
       Uri.parse('$baseUrl/user/signup'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'name': name,
-        'email': email,
-        'password': password,
-      }),
+      body: json.encode({'name': name, 'email': email, 'password': password}),
     );
 
     if (response.statusCode == 201) {
@@ -35,21 +36,28 @@ class AuthApiService {
     final response = await http.post(
       Uri.parse('$baseUrl/user/signin'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'email': email,
-        'password': password,
-      }),
+      body: json.encode({'email': email, 'password': password}),
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body)['metadata'];
-      return AuthResponseModel.fromJson(data);
+      final auth = AuthResponseModel.fromJson(data);
+      await tokenStorage.saveTokens(
+        accessToken: auth.accessToken,
+        refreshToken: auth.refreshToken,
+      );
+      return auth;
     } else {
       throw Exception('Sign in failed: ${response.body}');
     }
   }
 
-  Future<void> logout({required String accessToken}) async {
+  Future<void> logout() async {
+    final accessToken = await tokenStorage.getAccessToken();
+    if (accessToken == null) {
+      throw Exception('Unauthenticated: Access token not found');
+    }
+
     final response = await http.post(
       Uri.parse('$baseUrl/user/logout'),
       headers: {
@@ -61,20 +69,36 @@ class AuthApiService {
     if (response.statusCode != 200) {
       throw Exception('Logout failed: ${response.body}');
     }
+
+    // Clear tokens after logout
+    await tokenStorage.clearTokens();
   }
 
-  Future<AuthResponseModel> refreshToken({required String refreshToken}) async {
+  Future<AuthResponseModel> refreshAccessToken() async {
+    final refreshToken = await tokenStorage.getRefreshToken();
+    if (refreshToken == null) {
+      throw Exception('Unauthenticated: Refresh token not found');
+    }
+
     final response = await http.post(
       Uri.parse('$baseUrl/user/handlerRefreshToken'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $refreshToken', // Backend dùng refreshToken trong header
+        'Authorization': 'Bearer $refreshToken',
       },
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body)['metadata'];
-      return AuthResponseModel.fromJson(data);
+      final authResponse = AuthResponseModel.fromJson(data);
+
+      // Update tokens
+      await tokenStorage.saveTokens(
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+      );
+
+      return authResponse;
     } else {
       throw Exception('Refresh token failed: ${response.body}');
     }

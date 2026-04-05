@@ -19,12 +19,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> logout(String accessToken) {
-    return apiService.logout(accessToken: accessToken);
+  Future<void> logout() {
+    return apiService.logout();
   }
 
   @override
-  Future<AuthResponseModel> refreshToken(String refreshToken) {
-    return apiService.refreshToken(refreshToken: refreshToken);
+  Future<AuthResponseModel> refreshToken() {
+    return apiService.refreshAccessToken();
   }
 }

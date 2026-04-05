@@ -1,6 +1,5 @@
 // lib/features/auth/presentation/bloc/auth_cubit.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/usecases/sign_up_usecase.dart';
 import '../../domain/usecases/sign_in_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
@@ -24,8 +23,13 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       final response = await signUpUseCase(name, email, password);
-      await _saveTokens(response.accessToken, response.refreshToken);
-      emit(AuthAuthenticated(response.user, response.accessToken, response.refreshToken));
+      emit(
+        AuthAuthenticated(
+          response.user,
+          response.accessToken,
+          response.refreshToken,
+        ),
+      );
     } catch (e) {
       emit(AuthError(e.toString()));
     }
@@ -35,52 +39,40 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       final response = await signInUseCase(email, password);
-      await _saveTokens(response.accessToken, response.refreshToken);
-      emit(AuthAuthenticated(response.user, response.accessToken, response.refreshToken));
+      emit(
+        AuthAuthenticated(
+          response.user,
+          response.accessToken,
+          response.refreshToken,
+        ),
+      );
     } catch (e) {
       emit(AuthError(e.toString()));
     }
   }
 
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('accessToken') ?? '';
-    if (accessToken.isNotEmpty) {
-      try {
-        await logoutUseCase(accessToken);
-      } catch (e) {
-        // Ignore logout errors
-      }
+    try {
+      await logoutUseCase();
+    } catch (e) {
+      // Ignore logout errors
     }
-    await _clearTokens();
     emit(AuthInitial());
   }
 
   Future<void> refreshToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final refreshToken = prefs.getString('refreshToken') ?? '';
-    if (refreshToken.isNotEmpty) {
-      emit(AuthLoading());
-      try {
-        final response = await refreshTokenUseCase(refreshToken);
-        await _saveTokens(response.accessToken, response.refreshToken);
-        emit(AuthAuthenticated(response.user, response.accessToken, response.refreshToken));
-      } catch (e) {
-        await _clearTokens();
-        emit(AuthError(e.toString()));
-      }
+    emit(AuthLoading());
+    try {
+      final response = await refreshTokenUseCase();
+      emit(
+        AuthAuthenticated(
+          response.user,
+          response.accessToken,
+          response.refreshToken,
+        ),
+      );
+    } catch (e) {
+      emit(AuthError(e.toString()));
     }
-  }
-
-  Future<void> _saveTokens(String accessToken, String refreshToken) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('accessToken', accessToken);
-    await prefs.setString('refreshToken', refreshToken);
-  }
-
-  Future<void> _clearTokens() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('accessToken');
-    await prefs.remove('refreshToken');
   }
 }
