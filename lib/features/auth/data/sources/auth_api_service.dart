@@ -46,6 +46,7 @@ class AuthApiService {
         accessToken: auth.accessToken,
         refreshToken: auth.refreshToken,
       );
+      await tokenStorage.saveUserId(auth.user.id);
       return auth;
     } else {
       throw Exception('Sign in failed: ${response.body}');
