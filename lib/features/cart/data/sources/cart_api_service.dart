@@ -45,12 +45,13 @@
 //   }
 // }
 import 'dart:convert';
+import 'package:ecommerce_app/core/config/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:ecommerce_app/core/storage/token_storage.dart';
 import '../models/cart_item_model.dart';
 
 class CartApiService {
-  static const String baseUrl = 'http://192.168.50.215:3000/v1/api';
+  final String baseUrl = ApiConfig.baseUrl;
   final TokenStorage tokenStorage;
 
   CartApiService({required this.tokenStorage});
@@ -94,6 +95,46 @@ class CartApiService {
       return CartItemModel.fromJson(data);
     } else {
       throw Exception('Failed to add to cart: ${response.body}');
+    }
+  }
+
+  // ================= GET CART =================
+  //   Future<CartModel> getCart() async {
+  //   final response = await http.get(
+  //     Uri.parse('$baseUrl/cart'),
+  //     headers: await _headers(),
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     final body = json.decode(response.body);
+  //     final metadata = body['metadata'];
+
+  //     return CartModel.fromJson(metadata);
+  //   } else {
+  //     throw Exception('Failed to fetch cart: ${response.body}');
+  //   }
+  // }
+
+  Future<List<CartItemModel>> getCart() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/cart'),
+      headers: await _headers(),
+    );
+
+    if (response.statusCode == 200) {
+      final body = json.decode(response.body);
+      final metadata = body['metadata'];
+      List<dynamic> items = [];
+      if (metadata is Map<String, dynamic>) {
+        items = metadata['items'] ?? [];
+      } else if (metadata is List) {
+        items = metadata;
+      }
+      return items
+          .map((item) => CartItemModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } else {
+      throw Exception('Failed to fetch cart: ${response.body}');
     }
   }
 }

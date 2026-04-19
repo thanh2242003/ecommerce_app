@@ -7,5 +7,7 @@ class AppColors {
   static const lightBackground = Colors.white;
   static const darkBackground = Color(0xFF121212);
 
+  static const lightCard = Color.fromARGB(255, 238, 237, 237);
+
   //static const darkCard = Color(0xFF1E1E1E);
 }

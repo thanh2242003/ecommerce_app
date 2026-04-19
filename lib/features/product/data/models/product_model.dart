@@ -1,7 +1,6 @@
 import '../../domain/entities/product.dart';
 
 import '../../domain/entities/color.dart';
-import '../../domain/entities/review.dart';
 import 'color_model.dart';
 import 'review_model.dart';
 
@@ -33,9 +32,7 @@ class ProductModel extends ProductEntity {
       images: List<String>.from(json['images'] ?? []),
       salesNumber: json['salesNumber'] ?? 0,
       categoryId: json['categoryId'] ?? '',
-      colors: (json['colors'] as List? ?? [])
-          .map((e) => ProductColorModel.fromJson(e).toEntity())
-          .toList(),
+      colors: _parseColors(json),
       gender: json['gender'] ?? 0,
       sizes: List<String>.from(json['sizes'] ?? []),
       description: json['description'] ?? '',
@@ -46,5 +43,41 @@ class ProductModel extends ProductEntity {
       totalReviews: json['totalReviews'] ?? 0,
       //createdAt: DateTime.parse(json['creatAt']),
     );
+  }
+
+  static List<ProductColorEntity> _parseColors(Map<String, dynamic> json) {
+    final dynamic rawColors =
+        json['colors'] ??
+        json['color'] ??
+        (json['attributes'] is Map<String, dynamic>
+            ? (json['attributes']['colors'] ?? json['attributes']['color'])
+            : null) ??
+        (json['product_attributes'] is Map<String, dynamic>
+            ? (json['product_attributes']['colors'] ??
+                json['product_attributes']['color'])
+            : null);
+
+    if (rawColors is List) {
+      return rawColors
+          .map((e) {
+            if (e is Map<String, dynamic>) {
+              return ProductColorModel.fromJson(e).toEntity();
+            }
+
+            if (e is String && e.trim().isNotEmpty) {
+              return ProductColorModel.fromAttribute(e).toEntity();
+            }
+
+            return null;
+          })
+          .whereType<ProductColorEntity>()
+          .toList();
+    }
+
+    if (rawColors is String && rawColors.trim().isNotEmpty) {
+      return [ProductColorModel.fromAttribute(rawColors).toEntity()];
+    }
+
+    return <ProductColorEntity>[];
   }
 }

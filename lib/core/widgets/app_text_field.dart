@@ -1,6 +1,5 @@
+import 'package:ecommerce_app/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
-
-import '../../utils/app_textstyles.dart';
 
 class AppTextField extends StatefulWidget {
   const AppTextField({

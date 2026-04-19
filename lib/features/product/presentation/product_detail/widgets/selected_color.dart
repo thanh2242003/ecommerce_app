@@ -16,16 +16,20 @@ class SelectedColor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasColors = productEntity.colors.isNotEmpty;
+
     return GestureDetector(
-      onTap: (){
-        AppBottomsheet.display(
-            context,
-            BlocProvider.value(
-                value:BlocProvider.of<ProductColorSelectionCubit>(context),
-                child: ProductColors(productEntity: productEntity,)
-            )
-        );
-      },
+      onTap: hasColors
+          ? () {
+              AppBottomsheet.display(
+                context,
+                BlocProvider.value(
+                  value: BlocProvider.of<ProductColorSelectionCubit>(context),
+                  child: ProductColors(productEntity: productEntity),
+                ),
+              );
+            }
+          : null,
       child: Container(
         height: 60,
         margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -43,21 +47,26 @@ class SelectedColor extends StatelessWidget {
             ),
             Row(
               children: [
-                BlocBuilder<ProductColorSelectionCubit,int>(
-                  builder: (context, state) =>  Container(
-                    height: 20,
-                    width: 20,
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO(
-                          productEntity.colors[state].rgb[0],
-                          productEntity.colors[state].rgb[1],
-                          productEntity.colors[state].rgb[2],
-                          1
+                hasColors
+                    ? BlocBuilder<ProductColorSelectionCubit, int>(
+                        builder: (context, state) => Container(
+                          height: 20,
+                          width: 20,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(
+                              productEntity.colors[state].rgb[0],
+                              productEntity.colors[state].rgb[1],
+                              productEntity.colors[state].rgb[2],
+                              1,
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        'N/A',
+                        style: AppTextStyle.bodySmall,
                       ),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
                 const SizedBox(width: 15,),
                 const Icon(
                   Icons.keyboard_arrow_down,

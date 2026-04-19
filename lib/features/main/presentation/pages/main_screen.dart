@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../home/presentation/pages/home_screen.dart';
 import '../../../notifications/presentation/pages/notifications_screen.dart';
-import '../../../order/presentation/pages/orders_screen.dart';
+import '../../../order/presentation/pages/history_screen.dart';
 import '../../../profile/presentation/pages/profile_screen.dart';
 import '../widgets/main_bottom_navigation.dart';
 
@@ -17,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   int currentIndex = 0;
   final pages = [
     HomeScreen(),
-    OrdersScreen(),
+    HistoryScreen(),
     NotificationsScreen(),
     ProfileScreen(),
   ];

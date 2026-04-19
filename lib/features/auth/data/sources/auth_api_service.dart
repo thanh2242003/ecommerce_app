@@ -1,14 +1,25 @@
 import 'dart:convert';
+import 'package:ecommerce_app/core/config/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:ecommerce_app/features/auth/data/models/auth_response_model.dart';
 import 'package:ecommerce_app/core/storage/token_storage.dart';
 
 class AuthApiService {
-  static const String baseUrl =
-      'http://192.168.50.215:3000/v1/api'; //'http://10.0.2.2:3000/v1/api';
+  // static const String baseUrl =
+  //     'http://192.168.50.217:3000/v1/api'; //'http://10.0.2.2:3000/v1/api';
+  final String baseUrl = ApiConfig.baseUrl;
   final TokenStorage tokenStorage;
 
   AuthApiService({required this.tokenStorage});
+
+  Future<Map<String, String>> _authHeaders() async {
+    final userId = await tokenStorage.getUserId();
+    if (userId == null || userId.isEmpty) {
+      throw Exception('Unauthenticated: User id not found');
+    }
+
+    return {'Content-Type': 'application/json', 'x-client-id': userId};
+  }
 
   Future<AuthResponseModel> signUp({
     required String name,
@@ -82,11 +93,8 @@ class AuthApiService {
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/user/handlerRefreshToken'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $refreshToken',
-      },
+      Uri.parse('$baseUrl/user/handlerRefeshTokenV2'),
+      headers: {...(await _authHeaders()), 'x-rtoken-id': refreshToken},
     );
 
     if (response.statusCode == 200) {

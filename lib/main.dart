@@ -48,7 +48,12 @@ class MyApp extends StatelessWidget {
     //final productRepository = ProductRepositoryImpl(productApiService);
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => AppStartCubit()),
+        BlocProvider(
+          create: (_) => AppStartCubit(
+            authRepository: authRepository,
+            tokenStorage: tokenStorage,
+          ),
+        ),
         BlocProvider(
           create: (_) => AuthCubit(
             signUpUseCase: SignUpUseCase(authRepository),

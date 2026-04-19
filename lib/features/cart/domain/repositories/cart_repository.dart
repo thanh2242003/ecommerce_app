@@ -6,4 +6,6 @@ abstract class CartRepository {
     required int quantity,
     required String color,
   });
+
+  Future<List<CartItemEntity>> getCart();
 }

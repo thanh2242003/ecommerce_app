@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/core/utils/app_number_format.dart';
+import 'package:ecommerce_app/features/product/data/sources/product_api_service.dart';
 import 'package:ecommerce_app/features/product/presentation/pages/product_detail_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -10,13 +11,33 @@ class ProductCard extends StatelessWidget {
 
   final ProductEntity productEntity;
 
+  Future<void> _openProductDetail(BuildContext context) async {
+    ProductEntity targetProduct = productEntity;
+
+    try {
+      final detailedProduct = await ProductApiService.getProductById(
+        productEntity.productId,
+      );
+      targetProduct = detailedProduct;
+    } catch (_) {
+      // Keep fallback data to avoid blocking navigation when detail API fails.
+    }
+
+    if (!context.mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailScreen(productEntity: targetProduct),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       //tap vao thi chuyen den product detail tuong ung
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(
-            builder: (context) => ProductDetailScreen(productEntity: productEntity,)));},
+      onTap: () => _openProductDetail(context),
       child: Container(
         width: 180,
         decoration: BoxDecoration(

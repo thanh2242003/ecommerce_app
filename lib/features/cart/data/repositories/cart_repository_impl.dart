@@ -19,4 +19,9 @@ class CartRepositoryImpl implements CartRepository {
       color: color,
     );
   }
+
+  @override
+  Future<List<CartItemEntity>> getCart() async {
+    return await apiService.getCart();
+  }
 }

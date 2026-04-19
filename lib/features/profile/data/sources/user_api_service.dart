@@ -1,10 +1,10 @@
 import 'dart:convert';
+import 'package:ecommerce_app/core/config/api_config.dart';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 
 class UserApiService {
-  static const String baseUrl =
-      'http://192.168.50.215:3000/v1/api/user'; //'http://10.0.2.2:3000/v1/api/user';
+  static const String baseUrl = '${ApiConfig.baseUrl}/user';
 
   // ================= HEADERS =================
   static Map<String, String> _headers({required String userId, String? token}) {
