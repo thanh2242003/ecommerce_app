@@ -89,22 +89,24 @@ class ProductCard extends StatelessWidget {
                           productEntity.discountedPrice == 0
                               ? AppNumberFormat.format(productEntity.price)
                               : AppNumberFormat.format(
-                              productEntity.discountedPrice),
+                                  productEntity.discountedPrice,
+                                ),
                           style: AppTextStyle.withColor(
                             AppTextStyle.bodySmall,
                             Colors.black,
                           ),
                         ),
 
-                        const SizedBox(width: 10,),
-                        Text(productEntity.discountedPrice == 0
-                            ? ''
-                            : AppNumberFormat.format(productEntity.price),
+                        const SizedBox(width: 10),
+                        Text(
+                          productEntity.discountedPrice == 0
+                              ? ''
+                              : AppNumberFormat.format(productEntity.price),
                           style: AppTextStyle.withColor(
                             AppTextStyle.bodySmall,
                             Colors.grey,
                           ).copyWith(decoration: TextDecoration.lineThrough),
-                        )
+                        ),
                       ],
                     ),
                   ],

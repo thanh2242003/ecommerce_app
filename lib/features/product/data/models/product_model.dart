@@ -54,7 +54,7 @@ class ProductModel extends ProductEntity {
             : null) ??
         (json['product_attributes'] is Map<String, dynamic>
             ? (json['product_attributes']['colors'] ??
-                json['product_attributes']['color'])
+                  json['product_attributes']['color'])
             : null);
 
     if (rawColors is List) {

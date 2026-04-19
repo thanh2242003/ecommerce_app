@@ -271,9 +271,8 @@ class _BottomCheckoutBar extends StatelessWidget {
                     ? () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => OrdersScreen(
-                              selectedItems: selectedItems,
-                            ),
+                            builder: (_) =>
+                                OrdersScreen(selectedItems: selectedItems),
                           ),
                         );
                       }

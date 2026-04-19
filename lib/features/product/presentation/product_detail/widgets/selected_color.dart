@@ -9,10 +9,7 @@ import '../bloc/product_color_selection_cubit.dart';
 
 class SelectedColor extends StatelessWidget {
   final ProductEntity productEntity;
-  const SelectedColor({
-    required this.productEntity,
-    super.key
-  });
+  const SelectedColor({required this.productEntity, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +38,7 @@ class SelectedColor extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Màu sắc',
-              style: AppTextStyle.bodyMedium,
-            ),
+            Text('Màu sắc', style: AppTextStyle.bodyMedium),
             Row(
               children: [
                 hasColors
@@ -63,17 +57,11 @@ class SelectedColor extends StatelessWidget {
                           ),
                         ),
                       )
-                    : Text(
-                        'N/A',
-                        style: AppTextStyle.bodySmall,
-                      ),
-                const SizedBox(width: 15,),
-                const Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 30,
-                )
+                    : Text('N/A', style: AppTextStyle.bodySmall),
+                const SizedBox(width: 15),
+                const Icon(Icons.keyboard_arrow_down, size: 30),
               ],
-            )
+            ),
           ],
         ),
       ),
