@@ -1,11 +1,7 @@
-import 'package:ecommerce_app/features/cart/presentation/pages/cart_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../auth/presentation/bloc/auth_cubit.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../search/presentation/pages/search_screen.dart';
 
 class Header extends StatelessWidget {
@@ -16,19 +12,7 @@ class Header extends StatelessWidget {
     return Container(
       color: AppColors.primaryColor,
       padding: const EdgeInsets.only(left: 15, right: 15, top: 30, bottom: 20),
-      //se thay bang state, cubit cua cart
-      child: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          return Row(
-            children: [
-              Expanded(child: _buildSearchField(context)),
-              const SizedBox(width: 10),
-              _card(context),
-              //const SizedBox(width: 10),
-            ],
-          );
-        },
-      ),
+      child: _buildSearchField(context),
     );
   }
 
@@ -53,19 +37,6 @@ class Header extends StatelessWidget {
         hintText: 'search',
         hintStyle: TextStyle(color: AppColors.primaryColor),
       ),
-    );
-  }
-
-  Widget _card(BuildContext context) {
-    return IconButton(
-      iconSize: 32,
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CartScreen()),
-        );
-      },
-      icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
     );
   }
 

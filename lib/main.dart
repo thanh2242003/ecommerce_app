@@ -1,5 +1,10 @@
 import 'package:ecommerce_app/core/storage/token_storage.dart';
 import 'package:ecommerce_app/features/categories/presentation/bloc/categories_cubit.dart';
+import 'package:ecommerce_app/features/home/data/repositories/recommendation_repository_impl.dart';
+import 'package:ecommerce_app/features/home/data/sources/recommendation_api_service.dart';
+import 'package:ecommerce_app/features/home/domain/usecases/get_recommendations_usecase.dart';
+import 'package:ecommerce_app/features/home/presentation/bloc/home_cubit.dart';
+import 'package:ecommerce_app/features/home/presentation/bloc/recommendation_cubit.dart';
 import 'package:ecommerce_app/features/profile/presentation/bloc/user_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,19 +23,15 @@ import 'features/auth/presentation/pages/login_screen.dart';
 import 'features/categories/data/datasources/categories_remote_data_source.dart';
 import 'features/categories/data/repositories/categories_repository_impl.dart';
 import 'features/categories/domain/usecases/get_categories_usecase.dart';
-import 'features/home/presentation/pages/home_screen.dart';
 import 'features/main/presentation/pages/main_screen.dart';
-import 'features/product/data/sources/product_api_service.dart';
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/domain/usecases/get_top_selling_products.dart';
-import 'features/product/presentation/bloc/product_cubit.dart';
 import 'features/address/data/repositories/address_repository_impl.dart';
 import 'features/address/data/sources/address_remote_data_source.dart';
 import 'features/address/presentation/bloc/address_cubit.dart';
 import 'features/profile/data/repositories/user_repository_impl.dart';
 import 'features/profile/data/sources/user_api_service.dart';
 import 'features/profile/domain/usecases/get_user.dart';
-import 'features/splash/presentation/splash_screen.dart';
 import 'features/theme/presentation/bloc/theme_cubit.dart';
 import 'features/theme/presentation/bloc/theme_state.dart';
 
@@ -74,8 +75,22 @@ class MyApp extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (_) =>
-              ProductCubit(GetTopSellingProducts(ProductRepositoryImpl())),
+          create: (_) => HomeCubit(
+            getTopSellingProducts: GetTopSellingProducts(
+              ProductRepositoryImpl(),
+            ),
+          ),
+        ),
+        BlocProvider(
+          create: (_) => RecommendationCubit(
+            getRecommendationsUseCase: GetRecommendationsUseCase(
+              repository: RecommendationRepositoryImpl(
+                apiService: RecommendationApiService(
+                  tokenStorage: tokenStorage,
+                ),
+              ),
+            ),
+          ),
         ),
         BlocProvider(
           create: (_) =>

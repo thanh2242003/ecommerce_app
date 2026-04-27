@@ -8,7 +8,9 @@ import 'package:ecommerce_app/features/order/presentation/pages/order_history_de
 import 'package:flutter/material.dart';
 
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
+  const HistoryScreen({super.key, this.initialFilter});
+
+  final String? initialFilter;
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -31,6 +33,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
+    final initialFilter = widget.initialFilter?.toLowerCase();
+    if (initialFilter != null && _filters.contains(initialFilter)) {
+      _selectedFilter = initialFilter;
+    }
     _loadOrders();
   }
 

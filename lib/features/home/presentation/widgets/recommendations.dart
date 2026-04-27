@@ -1,8 +1,4 @@
-import 'package:ecommerce_app/core/storage/token_storage.dart';
 import 'package:ecommerce_app/core/theme/app_text_styles.dart';
-import 'package:ecommerce_app/features/home/data/repositories/recommendation_repository_impl.dart';
-import 'package:ecommerce_app/features/home/data/sources/recommendation_api_service.dart';
-import 'package:ecommerce_app/features/home/domain/usecases/get_recommendations_usecase.dart';
 import 'package:ecommerce_app/features/home/presentation/bloc/recommendation_cubit.dart';
 import 'package:ecommerce_app/features/product/domain/entities/product.dart';
 import 'package:ecommerce_app/features/product/presentation/widgets/product_card.dart';
@@ -91,19 +87,6 @@ class Recommendations extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 10),
         itemCount: products.length,
       ),
-    );
-  }
-
-  static BlocProvider<RecommendationCubit> provider({required Widget child}) {
-    return BlocProvider(
-      create: (_) => RecommendationCubit(
-        getRecommendationsUseCase: GetRecommendationsUseCase(
-          repository: RecommendationRepositoryImpl(
-            apiService: RecommendationApiService(tokenStorage: TokenStorage()),
-          ),
-        ),
-      )..loadRecommendations(),
-      child: child,
     );
   }
 }

@@ -2,9 +2,8 @@ import 'package:ecommerce_app/features/product/presentation/pages/top_selling_sc
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../categories/domain/entities/category.dart';
-import '../../../product/presentation/bloc/product_cubit.dart';
-import '../../../product/presentation/bloc/product_state.dart';
+import '../bloc/home_cubit.dart';
+import '../bloc/home_state.dart';
 import '../../../product/presentation/widgets/product_card.dart';
 import '../../../product/domain/entities/product.dart';
 
@@ -16,19 +15,18 @@ class TopSelling extends StatefulWidget {
 }
 
 class _TopSellingState extends State<TopSelling> {
-
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProductCubit, ProductState>(
+    return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
-        if (state is ProductLoading) {
+        if (state is HomeLoading) {
           return const Center(child: CircularProgressIndicator());
-        } else if (state is ProductLoaded) {
+        } else if (state is HomeLoaded) {
           return Column(
             children: [
               _seeAll(context),
               SizedBox(height: 20),
-              _products(context,state.products.take(3).toList()),
+              _products(context, state.topSellingProducts.take(3).toList()),
             ],
           );
         }
@@ -64,6 +62,7 @@ Widget _seeAll(BuildContext context) {
     ),
   );
 }
+
 Widget _products(BuildContext context, List<ProductEntity> products) {
   // Nếu không có sản phẩm nào, có thể hiện thông báo hoặc ẩn đi
   if (products.isEmpty) {
@@ -81,9 +80,7 @@ Widget _products(BuildContext context, List<ProductEntity> products) {
       scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
         // Đảm bảo ProductCard bên trong có chiều rộng (width) cố định
-        return ProductCard(
-          productEntity: products[index],
-        );
+        return ProductCard(productEntity: products[index]);
       },
       separatorBuilder: (context, index) => const SizedBox(width: 15),
       itemCount: products.length,

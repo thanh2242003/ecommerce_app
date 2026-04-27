@@ -5,18 +5,26 @@ import 'user_state.dart';
 class UserCubit extends Cubit<UserState> {
   final GetUserUseCase getUserUseCase;
 
-  UserCubit(this.getUserUseCase) : super(UserLoading());
+  UserCubit(this.getUserUseCase) : super(UserInitial());
 
-  void getUser({
+  Future<void> getUser({
     required String token,
     required String userId,
+    bool forceRefresh = false,
   }) async {
+    if (!forceRefresh) {
+      if (state is UserLoading) {
+        return;
+      }
+
+      if (state is UserLoaded) {
+        return;
+      }
+    }
+
     try {
       emit(UserLoading());
-      final user = await getUserUseCase.call(
-        token: token,
-        userId: userId,
-      );
+      final user = await getUserUseCase(token: token, userId: userId);
       emit(UserLoaded(user));
     } catch (e) {
       emit(UserError(e.toString()));

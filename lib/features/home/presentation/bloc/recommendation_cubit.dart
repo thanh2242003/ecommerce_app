@@ -11,7 +11,18 @@ class RecommendationCubit extends Cubit<RecommendationState> {
   RecommendationCubit({required this.getRecommendationsUseCase})
     : super(RecommendationInitial());
 
-  Future<void> loadRecommendations() async {
+  Future<void> loadRecommendationsIfNeeded({bool forceRefresh = false}) async {
+    if (!forceRefresh) {
+      if (state is RecommendationLoading) {
+        return;
+      }
+
+      if (state is RecommendationLoaded &&
+          (state as RecommendationLoaded).products.isNotEmpty) {
+        return;
+      }
+    }
+
     try {
       emit(RecommendationLoading());
 
