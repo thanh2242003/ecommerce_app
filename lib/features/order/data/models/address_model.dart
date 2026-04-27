@@ -28,4 +28,18 @@ class AddressModel {
       'address': address,
     };
   }
+
+  AddressModel copyWith({
+    String? id,
+    String? receiverName,
+    String? receiverPhone,
+    String? address,
+  }) {
+    return AddressModel(
+      id: id ?? this.id,
+      receiverName: receiverName ?? this.receiverName,
+      receiverPhone: receiverPhone ?? this.receiverPhone,
+      address: address ?? this.address,
+    );
+  }
 }

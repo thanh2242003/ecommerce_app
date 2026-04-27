@@ -7,9 +7,11 @@ import 'package:ecommerce_app/core/storage/token_storage.dart';
 import 'package:ecommerce_app/features/cart/domain/entities/cart_item.dart';
 import 'package:ecommerce_app/features/order/data/models/address_model.dart';
 import 'package:ecommerce_app/features/order/data/sources/address_api_service.dart';
-import 'package:ecommerce_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:ecommerce_app/features/order/data/sources/order_api_service.dart';
+import 'package:ecommerce_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:ecommerce_app/features/order/presentation/bloc/order_cubit.dart';
+import 'package:ecommerce_app/features/address/presentation/pages/add_address_screen.dart';
+import 'package:ecommerce_app/features/address/presentation/pages/address_screen.dart';
 
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({
@@ -59,7 +61,6 @@ class _OrdersViewState extends State<_OrdersView> {
   AddressModel? _selectedAddress;
   String? _addressError;
   bool _isLoadingAddress = false;
-  bool _isSavingAddress = false;
 
   static const int _shippingFee = 30000;
   static const int _voucherDiscount = 20000;
@@ -77,8 +78,11 @@ class _OrdersViewState extends State<_OrdersView> {
     });
 
     try {
+      // Note: AddressApiService is now in order feature for backward compatibility
+      // In a real app, you might want to move this to use the new address feature
       final apiService = AddressApiService(tokenStorage: TokenStorage());
       final defaultAddress = await apiService.getDefaultAddress();
+
       if (!mounted) {
         return;
       }
@@ -120,54 +124,22 @@ class _OrdersViewState extends State<_OrdersView> {
     return total < 0 ? 0 : total;
   }
 
-  Future<void> _handleAddAddress() async {
-    if (_isSavingAddress) {
-      return;
-    }
-
-    final createdAddress = await showDialog<AddressModel>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => _AddAddressDialog(
-        onSubmit: (receiverName, receiverPhone, address) async {
-          setState(() {
-            _isSavingAddress = true;
-          });
-          try {
-            final tokenStorage = TokenStorage();
-            final apiService = AddressApiService(tokenStorage: tokenStorage);
-            final created = await apiService.createAddress(
-              receiverName: receiverName,
-              receiverPhone: receiverPhone,
-              address: address,
-            );
-            final defaultAddress = await apiService.getDefaultAddress();
-            return defaultAddress ?? created;
-          } finally {
-            if (mounted) {
-              setState(() {
-                _isSavingAddress = false;
-              });
-            }
-          }
-        },
-      ),
-    );
-
-    if (!mounted || createdAddress == null) {
-      return;
-    }
-
-    setState(() {
-      _selectedAddress = createdAddress;
+  void _goToAddressScreen() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const AddressScreen())).then((_) {
+      // Reload default address when returning from address screen
+      _loadDefaultAddress();
     });
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Them dia chi thanh cong'),
-        backgroundColor: Colors.green,
-      ),
-    );
+  void _goToAddAddressScreen() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const AddAddressScreen()))
+        .then((_) {
+          // Reload default address when returning from add address screen
+          _loadDefaultAddress();
+        });
   }
 
   @override
@@ -228,11 +200,14 @@ class _OrdersViewState extends State<_OrdersView> {
                       )
                     else if (_selectedAddress == null)
                       _AddAddressCard(
-                        isSaving: _isSavingAddress,
-                        onTap: _handleAddAddress,
+                        isSaving: false,
+                        onTap: _goToAddAddressScreen,
                       )
                     else
-                      _AddressCard(address: _selectedAddress!),
+                      _AddressCard(
+                        address: _selectedAddress!,
+                        onTap: _goToAddressScreen,
+                      ),
                     if (_addressError != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -306,8 +281,7 @@ class _OrdersViewState extends State<_OrdersView> {
                         onPressed:
                             _displayItems.isEmpty ||
                                 isLoading ||
-                                _isLoadingAddress ||
-                                _isSavingAddress
+                                _isLoadingAddress
                             ? null
                             : () => _placeOrder(context),
                         style: ElevatedButton.styleFrom(
@@ -567,46 +541,73 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _AddressCard extends StatelessWidget {
-  const _AddressCard({required this.address});
+  const _AddressCard({required this.address, required this.onTap});
 
   final AddressModel address;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.lightCard,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            address.receiverName,
-            style: AppTextStyle.withColor(
-              AppTextStyle.bodyLarge,
-              Colors.black87,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(0),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            // Icon location
+            const Icon(Icons.location_on_outlined, size: 28),
+
+            const SizedBox(width: 12),
+
+            // Nội dung
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Tên + SĐT
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          address.receiverName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        address.receiverPhone,
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  // Địa chỉ
+                  Text(
+                    address.address,
+                    style: const TextStyle(fontSize: 14),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            address.receiverPhone,
-            style: AppTextStyle.withColor(
-              AppTextStyle.bodyMedium,
-              Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            address.address,
-            style: AppTextStyle.withColor(
-              AppTextStyle.bodyMedium,
-              Colors.black54,
-            ),
-          ),
-        ],
+
+            // Icon mũi tên
+            const Icon(Icons.chevron_right),
+          ],
+        ),
       ),
     );
   }

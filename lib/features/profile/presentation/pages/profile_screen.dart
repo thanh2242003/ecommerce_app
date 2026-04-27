@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/core/theme/app_text_styles.dart';
+import 'package:ecommerce_app/features/address/presentation/pages/address_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,7 +16,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -24,13 +24,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final authState = context.read<AuthCubit>().state;
       if (authState is AuthAuthenticated) {
         context.read<UserCubit>().getUser(
-              token: authState.accessToken,
-              userId: authState.user.id,
-            );
+          token: authState.accessToken,
+          userId: authState.user.id,
+        );
       }
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +38,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: BlocBuilder<UserCubit, UserState>(
           builder: (context, state) {
-
             ///  Loading
             if (state is UserLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -113,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             'Chỉnh sửa',
                             style: TextStyle(color: Colors.blue),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -124,12 +122,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      children: const [
-                        _MenuItem(title: 'Địa chỉ'),
-                        _MenuItem(title: 'Yêu thích'),
-                        _MenuItem(title: 'Thanh toán'),
-                        _MenuItem(title: 'Trợ giúp'),
-                        _MenuItem(title: 'Hỗ trợ'),
+                      children: [
+                        _MenuItem(
+                          title: 'Địa chỉ',
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const AddressScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const _MenuItem(title: 'Yêu thích'),
+                        const _MenuItem(title: 'Thanh toán'),
+                        const _MenuItem(title: 'Trợ giúp'),
+                        const _MenuItem(title: 'Hỗ trợ'),
                       ],
                     ),
                   ),
@@ -143,10 +150,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       child: Text(
                         'Đăng xuất',
-                        style: AppTextStyle.buttonLarge.copyWith(color: Colors.red),
+                        style: AppTextStyle.buttonLarge.copyWith(
+                          color: Colors.red,
+                        ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               );
             }
@@ -162,25 +171,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
 /// Menu item widget
 class _MenuItem extends StatelessWidget {
   final String title;
+  final VoidCallback? onTap;
 
-  const _MenuItem({required this.title});
+  const _MenuItem({required this.title, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      height: 55,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title),
-          const Icon(Icons.arrow_forward_ios, size: 16),
-        ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: 55,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title),
+            const Icon(Icons.arrow_forward_ios, size: 16),
+          ],
+        ),
       ),
     );
   }

@@ -24,6 +24,9 @@ import 'features/product/data/sources/product_api_service.dart';
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/domain/usecases/get_top_selling_products.dart';
 import 'features/product/presentation/bloc/product_cubit.dart';
+import 'features/address/data/repositories/address_repository_impl.dart';
+import 'features/address/data/sources/address_remote_data_source.dart';
+import 'features/address/presentation/bloc/address_cubit.dart';
 import 'features/profile/data/repositories/user_repository_impl.dart';
 import 'features/profile/data/sources/user_api_service.dart';
 import 'features/profile/domain/usecases/get_user.dart';
@@ -77,6 +80,15 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) =>
               UserCubit(GetUserUseCase(UserRepositoryImpl(UserApiService()))),
+        ),
+        BlocProvider(
+          create: (_) => AddressCubit(
+            repository: AddressRepositoryImpl(
+              remoteDataSource: AddressRemoteDataSource(
+                tokenStorage: tokenStorage,
+              ),
+            ),
+          ),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
