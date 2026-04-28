@@ -26,6 +26,7 @@ class OrderCubit extends Cubit<OrderState> {
     String productId,
     int quantity,
     String color,
+    String? size,
   ) async {
     emit(const OrderLoading());
     try {
@@ -35,6 +36,7 @@ class OrderCubit extends Cubit<OrderState> {
         productId: productId,
         quantity: quantity,
         color: color,
+        size: size,
       );
       final response = await orderRepository.createOrder(request);
       emit(OrderSuccess(response));

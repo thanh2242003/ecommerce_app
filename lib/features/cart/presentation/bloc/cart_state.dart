@@ -1,35 +1,52 @@
 part of 'cart_cubit.dart';
 
-enum CartStatus { initial, loading, loaded, error }
+abstract class CartState extends Equatable {
+  const CartState();
 
-class CartState {
-  final CartStatus status;
+  @override
+  List<Object?> get props => [];
+}
+
+class CartInitial extends CartState {
+  const CartInitial();
+}
+
+class CartLoading extends CartState {
+  const CartLoading();
+}
+
+class CartLoaded extends CartState {
   final List<CartItemEntity> items;
   final Set<String> selectedIds;
   final int totalPrice;
-  final String? errorMessage;
 
-  const CartState({
-    this.status = CartStatus.initial,
-    this.items = const [],
+  const CartLoaded({
+    required this.items,
     this.selectedIds = const {},
     this.totalPrice = 0,
-    this.errorMessage,
   });
 
-  CartState copyWith({
-    CartStatus? status,
+  CartLoaded copyWith({
     List<CartItemEntity>? items,
     Set<String>? selectedIds,
     int? totalPrice,
-    String? errorMessage,
   }) {
-    return CartState(
-      status: status ?? this.status,
+    return CartLoaded(
       items: items ?? this.items,
       selectedIds: selectedIds ?? this.selectedIds,
       totalPrice: totalPrice ?? this.totalPrice,
-      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
+
+  @override
+  List<Object?> get props => [items, selectedIds, totalPrice];
+}
+
+class CartError extends CartState {
+  final String message;
+
+  const CartError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
 }

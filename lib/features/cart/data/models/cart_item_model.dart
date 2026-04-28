@@ -6,6 +6,7 @@ class CartItemModel extends CartItemEntity {
     required super.productId,
     required super.quantity,
     required super.color,
+    super.size,
     required super.price,
     super.productName,
     super.productImage,
@@ -15,6 +16,8 @@ class CartItemModel extends CartItemEntity {
     String productId = '';
     String productName = '';
     String? productImage;
+    String? size;
+    int productPrice = 0;
 
     if (product is Map<String, dynamic>) {
       productId = product['_id'] ?? '';
@@ -23,20 +26,29 @@ class CartItemModel extends CartItemEntity {
       if (images is List && images.isNotEmpty) {
         productImage = images.first as String?;
       }
+      // prefer discountedPrice if present and > 0
+      final discounted = (product['discountedPrice'] as num?)?.toInt() ?? 0;
+      final original = (product['price'] as num?)?.toInt() ?? 0;
+      productPrice = discounted > 0 ? discounted : original;
     } else if (product is String) {
       productId = product;
     }
+
+    size = json['size'] as String?;
 
     return CartItemModel(
       cartItemId:
           json['_id'] ??
           json['cartItemId'] ??
-          '${productId}_${json['color'] ?? ''}',
+          '${productId}_${json['color'] ?? ''}_${size ?? ''}',
 
       productId: productId,
       quantity: json['quantity'] ?? 0,
       color: json['color'] ?? '',
-      price: (json['price'] as num?)?.toInt() ?? 0,
+      size: size,
+      price: productPrice != 0
+          ? productPrice
+          : (json['price'] as num?)?.toInt() ?? 0,
 
       productName: productName,
       productImage: productImage,
@@ -78,6 +90,7 @@ class CartItemModel extends CartItemEntity {
       'productId': productId,
       'quantity': quantity,
       'color': color,
+      'size': size,
       'price': price,
     };
   }

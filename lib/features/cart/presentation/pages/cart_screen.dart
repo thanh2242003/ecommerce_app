@@ -3,36 +3,39 @@ import 'package:ecommerce_app/core/theme/app_text_styles.dart';
 import 'package:ecommerce_app/core/utils/app_number_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/storage/token_storage.dart';
-import '../../data/repositories/cart_repository_impl.dart';
-import '../../data/sources/cart_api_service.dart';
 import '../../domain/entities/cart_item.dart';
-import '../../domain/usecases/get_cart_usecase.dart';
 import '../bloc/cart_cubit.dart';
 import '../widgets/product_order_card.dart';
 import '../../../order/presentation/pages/orders_screen.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
   @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<CartCubit>().fetchCart();
+  }
+
+  Future<void> _refreshCart() async {
+    await context.read<CartCubit>().fetchCart(forceRefresh: true);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        // TODO: Replace with DI (get_it) when ready
-        final tokenStorage = TokenStorage();
-        final apiService = CartApiService(tokenStorage: tokenStorage);
-        final repository = CartRepositoryImpl(apiService: apiService);
-        final usecase = GetCartUseCase(repository: repository);
-        return CartCubit(getCartUseCase: usecase)..fetchCart();
-      },
-      child: const _CartView(),
-    );
+    return _CartView(onRefresh: _refreshCart);
   }
 }
 
 class _CartView extends StatelessWidget {
-  const _CartView();
+  const _CartView({required this.onRefresh});
+
+  final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +54,13 @@ class _CartView extends StatelessWidget {
       ),
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {
-          if (state.status == CartStatus.loading) {
+          if (state is CartLoading || state is CartInitial) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFFff5722)),
+              child: CircularProgressIndicator(color: AppColors.primaryColor),
             );
           }
 
-          if (state.status == CartStatus.error) {
+          if (state is CartError) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -79,7 +82,7 @@ class _CartView extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      state.errorMessage ?? '',
+                      state.message,
                       textAlign: TextAlign.center,
                       style: AppTextStyle.withColor(
                         AppTextStyle.bodySmall,
@@ -88,11 +91,13 @@ class _CartView extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
-                      onPressed: () => context.read<CartCubit>().fetchCart(),
+                      onPressed: () => context.read<CartCubit>().fetchCart(
+                        forceRefresh: true,
+                      ),
                       icon: const Icon(Icons.refresh_rounded),
                       label: const Text('Retry'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFff5722),
+                        backgroundColor: AppColors.primaryColor,
                         foregroundColor: Colors.white,
                       ),
                     ),
@@ -102,40 +107,58 @@ class _CartView extends StatelessWidget {
             );
           }
 
-          if (state.items.isEmpty) {
-            return const _EmptyCart();
+          final loadedState = state as CartLoaded;
+
+          if (loadedState.items.isEmpty) {
+            return RefreshIndicator(
+              color: AppColors.primaryColor,
+              onRefresh: onRefresh,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(top: 120),
+                children: const [_EmptyCart()],
+              ),
+            );
           }
 
           return Column(
             children: [
               // ── Select All ──────────────────────────────────────────
               _SelectAllBar(
-                totalItems: state.items.length,
-                selectedCount: state.selectedIds.length,
+                totalItems: loadedState.items.length,
+                selectedCount: loadedState.selectedIds.length,
               ),
 
               // ── Cart Items List ─────────────────────────────────────
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.only(top: 4, bottom: 16),
-                  itemCount: state.items.length,
-                  itemBuilder: (context, index) {
-                    final item = state.items[index];
-                    return ProductOrderCard(
-                      item: item,
-                      isSelected: state.selectedIds.contains(item.cartItemId),
-                    );
-                  },
+                child: RefreshIndicator(
+                  color: AppColors.primaryColor,
+                  onRefresh: onRefresh,
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(top: 4, bottom: 16),
+                    itemCount: loadedState.items.length,
+                    itemBuilder: (context, index) {
+                      final item = loadedState.items[index];
+                      return ProductOrderCard(
+                        item: item,
+                        isSelected: loadedState.selectedIds.contains(
+                          item.cartItemId,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
 
               // ── Bottom Bar ─────────────────────────────────────────
               _BottomCheckoutBar(
-                totalPrice: state.totalPrice,
-                selectedCount: state.selectedIds.length,
-                selectedItems: state.items
+                totalPrice: loadedState.totalPrice,
+                selectedCount: loadedState.selectedIds.length,
+                selectedItems: loadedState.items
                     .where(
-                      (item) => state.selectedIds.contains(item.cartItemId),
+                      (item) =>
+                          loadedState.selectedIds.contains(item.cartItemId),
                     )
                     .toList(),
               ),
@@ -159,6 +182,11 @@ class _SelectAllBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final allSelected = selectedCount == totalItems;
     final cubit = context.read<CartCubit>();
+    final currentState = cubit.state;
+
+    if (currentState is! CartLoaded) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       color: AppColors.lightBackground,
@@ -173,21 +201,21 @@ class _SelectAllBar extends StatelessWidget {
               onChanged: (_) {
                 if (allSelected) {
                   // Deselect all
-                  for (final item in cubit.state.items) {
-                    if (cubit.state.selectedIds.contains(item.cartItemId)) {
+                  for (final item in currentState.items) {
+                    if (currentState.selectedIds.contains(item.cartItemId)) {
                       cubit.toggleSelectItem(item.cartItemId);
                     }
                   }
                 } else {
                   // Select all
-                  for (final item in cubit.state.items) {
-                    if (!cubit.state.selectedIds.contains(item.cartItemId)) {
+                  for (final item in currentState.items) {
+                    if (!currentState.selectedIds.contains(item.cartItemId)) {
                       cubit.toggleSelectItem(item.cartItemId);
                     }
                   }
                 }
               },
-              activeColor: const Color(0xFFff5722),
+              activeColor: AppColors.primaryColor,
               checkColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
@@ -252,7 +280,7 @@ class _BottomCheckoutBar extends StatelessWidget {
                   AppNumberFormat.format(totalPrice),
                   style: AppTextStyle.withColor(
                     AppTextStyle.bodyLarge,
-                    Color(0xFFff5722),
+                    AppColors.primaryColor,
                   ),
                 ),
               ],

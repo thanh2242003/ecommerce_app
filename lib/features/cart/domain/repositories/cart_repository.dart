@@ -5,7 +5,21 @@ abstract class CartRepository {
     required String productId,
     required int quantity,
     required String color,
+    String? size,
   });
 
   Future<List<CartItemEntity>> getCart();
+
+  Future<List<CartItemEntity>> updateQuantity({
+    required String productId,
+    required int quantity,
+    String? color,
+    String? size,
+  });
+
+  Future<List<CartItemEntity>> deleteItem({
+    required String productId,
+    String? color,
+    String? size,
+  });
 }

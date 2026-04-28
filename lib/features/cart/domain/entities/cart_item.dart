@@ -3,6 +3,7 @@ class CartItemEntity {
   final String productId;
   final int quantity;
   final String color;
+  final String? size;
   final int price;
   final String productName;
   final String? productImage;
@@ -12,6 +13,7 @@ class CartItemEntity {
     required this.productId,
     required this.quantity,
     required this.color,
+    this.size,
     required this.price,
     this.productName = '',
     this.productImage,
@@ -22,6 +24,7 @@ class CartItemEntity {
     String? productId,
     int? quantity,
     String? color,
+    String? size,
     int? price,
     String? productName,
     String? productImage,
@@ -31,6 +34,7 @@ class CartItemEntity {
       productId: productId ?? this.productId,
       quantity: quantity ?? this.quantity,
       color: color ?? this.color,
+      size: size ?? this.size,
       price: price ?? this.price,
       productName: productName ?? this.productName,
       productImage: productImage ?? this.productImage,

@@ -4,6 +4,7 @@ import 'package:ecommerce_app/core/theme/app_colors.dart';
 import 'package:ecommerce_app/core/theme/app_text_styles.dart';
 import 'package:ecommerce_app/core/utils/app_number_format.dart';
 import 'package:ecommerce_app/core/storage/token_storage.dart';
+import 'package:ecommerce_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:ecommerce_app/features/cart/domain/entities/cart_item.dart';
 import 'package:ecommerce_app/features/order/data/models/address_model.dart';
 import 'package:ecommerce_app/features/order/data/sources/address_api_service.dart';
@@ -147,6 +148,8 @@ class _OrdersViewState extends State<_OrdersView> {
     return BlocConsumer<OrderCubit, OrderState>(
       listener: (context, state) {
         if (state is OrderSuccess) {
+          context.read<CartCubit>().fetchCart(forceRefresh: true);
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Dat hang thanh cong! Ma don: ${state.order.id}'),
@@ -337,6 +340,7 @@ class _OrdersViewState extends State<_OrdersView> {
         widget.product!.productId,
         widget.product!.quantity,
         widget.product!.color,
+        widget.product!.size,
       );
       return;
     }
@@ -686,7 +690,9 @@ class _SelectedItemsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Mau: ${item.color} x${item.quantity}',
+                        item.size != null && item.size!.isNotEmpty
+                            ? 'Mau: ${item.color} • Size: ${item.size} x${item.quantity}'
+                            : 'Mau: ${item.color} x${item.quantity}',
                         style: AppTextStyle.withColor(
                           AppTextStyle.bodySmall,
                           Colors.black54,

@@ -10,11 +10,13 @@ class AddToCartUseCase {
     required String productId,
     required int quantity,
     required String color,
+    String? size,
   }) {
     return repository.addToCart(
       productId: productId,
       quantity: quantity,
       color: color,
+      size: size,
     );
   }
 }

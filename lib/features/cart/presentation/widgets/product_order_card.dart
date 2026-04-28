@@ -30,7 +30,7 @@ class ProductOrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isSelected
-              ? const Color(0xFFff5722).withOpacity(0.6)
+              ? AppColors.primaryColor.withOpacity(0.6)
               : Colors.black12,
           width: 1.5,
         ),
@@ -53,7 +53,7 @@ class ProductOrderCard extends StatelessWidget {
               child: Checkbox(
                 value: isSelected,
                 onChanged: (_) => cubit.toggleSelectItem(item.cartItemId),
-                activeColor: const Color(0xFFff5722),
+                activeColor: AppColors.primaryColor,
                 checkColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
@@ -96,7 +96,7 @@ class ProductOrderCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  // Color badge
+                  // Color and size badge
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -107,7 +107,9 @@ class ProductOrderCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      item.color,
+                      item.size != null && item.size!.isNotEmpty
+                          ? '${item.color} • ${item.size}'
+                          : item.color,
                       style: AppTextStyle.withColor(
                         AppTextStyle.bodySmall,
                         subtitleColor,
@@ -120,7 +122,7 @@ class ProductOrderCard extends StatelessWidget {
                     AppNumberFormat.format(item.price * item.quantity),
                     style: AppTextStyle.withColor(
                       AppTextStyle.buttonMedium,
-                      const Color(0xFFff5722),
+                      AppColors.primaryColor,
                     ),
                   ),
                 ],
@@ -152,6 +154,14 @@ class ProductOrderCard extends StatelessWidget {
                 ),
               ],
             ),
+
+            // ── Delete Button ────────────────────────────────────────
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 22),
+              color: Colors.redAccent,
+              onPressed: () => _showDeleteConfirm(context, item, cubit),
+              tooltip: 'Delete',
+            ),
           ],
         ),
       ),
@@ -170,6 +180,34 @@ class ProductOrderCard extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _showDeleteConfirm(
+    BuildContext context,
+    CartItemEntity item,
+    CartCubit cubit,
+  ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xoa san pham'),
+        content: Text('Ban co muon xoa "${item.productName}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Huy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Xoa'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await cubit.deleteSelectedItems([item.cartItemId]);
+    }
+  }
 }
 
 class _QtyButton extends StatelessWidget {
@@ -187,7 +225,7 @@ class _QtyButton extends StatelessWidget {
         width: 30,
         height: 30,
         decoration: BoxDecoration(
-          color: enabled ? const Color(0xFFff5722) : Colors.black12,
+          color: enabled ? AppColors.primaryColor : Colors.black12,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(

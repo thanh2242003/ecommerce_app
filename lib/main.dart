@@ -1,4 +1,9 @@
 import 'package:ecommerce_app/core/storage/token_storage.dart';
+import 'package:ecommerce_app/features/cart/data/repositories/cart_repository_impl.dart';
+import 'package:ecommerce_app/features/cart/data/sources/cart_api_service.dart';
+import 'package:ecommerce_app/features/cart/domain/usecases/add_to_cart_usecase.dart';
+import 'package:ecommerce_app/features/cart/domain/usecases/get_cart_usecase.dart';
+import 'package:ecommerce_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:ecommerce_app/features/categories/presentation/bloc/categories_cubit.dart';
 import 'package:ecommerce_app/features/home/data/repositories/recommendation_repository_impl.dart';
 import 'package:ecommerce_app/features/home/data/sources/recommendation_api_service.dart';
@@ -48,6 +53,8 @@ class MyApp extends StatelessWidget {
     final tokenStorage = TokenStorage();
     final authApiService = AuthApiService(tokenStorage: tokenStorage);
     final authRepository = AuthRepositoryImpl(authApiService);
+    final cartApiService = CartApiService(tokenStorage: tokenStorage);
+    final cartRepository = CartRepositoryImpl(apiService: cartApiService);
     //final productApiService = ProductApiService();
     //final productRepository = ProductRepositoryImpl(productApiService);
     return MultiBlocProvider(
@@ -67,6 +74,13 @@ class MyApp extends StatelessWidget {
           ),
         ),
         BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(
+          create: (_) => CartCubit(
+            getCartUseCase: GetCartUseCase(repository: cartRepository),
+            addToCartUseCase: AddToCartUseCase(repository: cartRepository),
+            repository: cartRepository,
+          ),
+        ),
         BlocProvider(
           create: (_) => CategoriesCubit(
             GetCategoriesUseCase(

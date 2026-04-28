@@ -4,6 +4,7 @@ class OrderRequest {
   final String? productId;
   final int? quantity;
   final String? color;
+  final String? size;
 
   const OrderRequest({
     required this.type,
@@ -11,6 +12,7 @@ class OrderRequest {
     this.productId,
     this.quantity,
     this.color,
+    this.size,
   });
 
   factory OrderRequest.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class OrderRequest {
       productId: json['productId']?.toString(),
       quantity: (json['quantity'] as num?)?.toInt(),
       color: json['color']?.toString(),
+      size: json['size']?.toString(),
     );
   }
 
@@ -34,6 +37,9 @@ class OrderRequest {
     }
     if (color != null) {
       map['color'] = color;
+    }
+    if (size != null) {
+      map['size'] = size;
     }
 
     return map;

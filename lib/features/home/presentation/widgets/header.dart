@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_text_field.dart';
 import '../../../search/presentation/pages/search_screen.dart';
 
 class Header extends StatelessWidget {
