@@ -1,5 +1,5 @@
 import 'package:ecommerce_app/core/theme/app_colors.dart';
-import 'package:ecommerce_app/core/theme/app_text_styles.dart';
+import 'package:ecommerce_app/core/widgets/basic_app_bar.dart';
 import 'package:ecommerce_app/features/address/domain/entities/address_entity.dart';
 import 'package:ecommerce_app/features/address/presentation/bloc/address_cubit.dart';
 import 'package:flutter/material.dart';
@@ -127,16 +127,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: AppColors.lightBackground,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Sua dia chi',
-          style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black87),
-        ),
-      ),
+      appBar: BasicAppbar(titleText: 'Sua dia chi'),
       body: Form(
         key: _formKey,
         child: ListView(

@@ -1,5 +1,5 @@
 import 'package:ecommerce_app/core/theme/app_colors.dart';
-import 'package:ecommerce_app/core/theme/app_text_styles.dart';
+import 'package:ecommerce_app/core/widgets/basic_app_bar.dart';
 import 'package:ecommerce_app/features/address/presentation/bloc/address_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,16 +73,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: AppColors.lightBackground,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Them dia chi moi',
-          style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black87),
-        ),
-      ),
+      appBar: BasicAppbar(titleText: 'Them dia chi moi'),
       body: Form(
         key: _formKey,
         child: ListView(

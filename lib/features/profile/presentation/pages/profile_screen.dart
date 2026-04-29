@@ -5,7 +5,6 @@ import 'package:ecommerce_app/core/storage/token_storage.dart';
 import 'package:ecommerce_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:ecommerce_app/features/order/data/sources/order_api_service.dart';
 import 'package:ecommerce_app/features/order/presentation/pages/history_screen.dart';
-import 'package:ecommerce_app/features/order/presentation/pages/order_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -127,16 +126,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => HistoryScreen(initialFilter: filter)),
     );
-    if (!mounted) {
-      return;
-    }
-    await _loadOrderBadgeCountsIfNeeded(forceRefresh: true);
-  }
-
-  Future<void> _openReviewScreen() async {
-    await Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const OrderReviewScreen()));
     if (!mounted) {
       return;
     }
@@ -325,7 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               icon: Icons.star_border,
                               label: 'Đánh giá',
                               badgeCount: _reviewCount,
-                              onTap: _openReviewScreen,
+                              onTap: () => _openHistoryWithFilter('delivered'),
                             ),
                           ],
                         ),

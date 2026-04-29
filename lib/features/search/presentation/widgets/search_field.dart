@@ -48,9 +48,13 @@ class _SearchFieldState extends State<SearchField> {
             borderRadius: BorderRadius.circular(10),
             //borderSide: BorderSide.none,
           ),
-          prefixIcon: Icon(Icons.search),
-          hintText: 'search',
-          hintStyle: TextStyle(color: Colors.grey),
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: IconButton(
+            onPressed: () => _submitSearch(textEditingController.text),
+            icon: const Icon(Icons.arrow_forward_rounded),
+          ),
+          hintText: 'Tìm kiếm sản phẩm',
+          hintStyle: const TextStyle(color: Colors.grey),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:ecommerce_app/core/theme/app_colors.dart';
 import 'package:ecommerce_app/core/theme/app_text_styles.dart';
+import 'package:ecommerce_app/core/widgets/basic_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class OrderReviewScreen extends StatelessWidget {
@@ -9,16 +10,7 @@ class OrderReviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: AppColors.lightBackground,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Đánh giá',
-          style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black87),
-        ),
-      ),
+      appBar: BasicAppbar(titleText: 'Đánh giá'),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

@@ -1,21 +1,32 @@
-import 'package:ecommerce_app/features/categories/data/models/category_model.dart';
+import 'dart:convert';
 
-// chua ket noi backend
+import 'package:ecommerce_app/core/config/api_config.dart';
+import 'package:ecommerce_app/features/categories/data/models/category_model.dart';
+import 'package:http/http.dart' as http;
+
 abstract class CategoriesRemoteDataSource {
   Future<List<CategoryModel>> getCategories();
 }
 
 class CategoriesRemoteDataSourceImpl implements CategoriesRemoteDataSource {
+  static const String _baseUrl = '${ApiConfig.baseUrl}/category';
+
   @override
   Future<List<CategoryModel>> getCategories() async {
-    await Future.delayed(const Duration(seconds: 1));
+    final response = await http.get(Uri.parse(_baseUrl));
 
-    return [
-      CategoryModel(categoryId: "1", title: "Quần áo", image: "shoe.jpg"),
-      CategoryModel(categoryId: "2", title: "Đồ chơi", image: "shoe2.jpg"),
-      CategoryModel(categoryId: "3", title: "Giày dép", image: "shoes2.jpg"),
-      CategoryModel(categoryId: "4", title: "Đồ ăn", image: "shoes2.jpg"),
-      CategoryModel(categoryId: "5", title: "Khác", image: "shoes2.jpg"),
-    ];
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+      final metadata = decoded['metadata'] as List<dynamic>? ?? [];
+
+      return metadata
+          .whereType<Map<String, dynamic>>()
+          .map(CategoryModel.fromJson)
+          .toList()
+          .reversed
+          .toList();
+    }
+
+    throw Exception('Failed to load categories: ${response.body}');
   }
 }

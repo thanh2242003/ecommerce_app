@@ -4,6 +4,7 @@ import 'package:ecommerce_app/core/theme/app_colors.dart';
 import 'package:ecommerce_app/core/theme/app_text_styles.dart';
 import 'package:ecommerce_app/core/utils/app_number_format.dart';
 import 'package:ecommerce_app/core/storage/token_storage.dart';
+import 'package:ecommerce_app/core/widgets/basic_app_bar.dart';
 import 'package:ecommerce_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:ecommerce_app/features/cart/domain/entities/cart_item.dart';
 import 'package:ecommerce_app/features/order/data/models/address_model.dart';
@@ -13,6 +14,7 @@ import 'package:ecommerce_app/features/order/data/repositories/order_repository_
 import 'package:ecommerce_app/features/order/presentation/bloc/order_cubit.dart';
 import 'package:ecommerce_app/features/address/presentation/pages/add_address_screen.dart';
 import 'package:ecommerce_app/features/address/presentation/pages/address_screen.dart';
+import 'package:ecommerce_app/features/address/presentation/bloc/address_cubit.dart';
 
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({
@@ -126,12 +128,22 @@ class _OrdersViewState extends State<_OrdersView> {
   }
 
   void _goToAddressScreen() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const AddressScreen())).then((_) {
-      // Reload default address when returning from address screen
-      _loadDefaultAddress();
-    });
+    Navigator.of(context)
+        .push<AddressModel>(
+          MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+              value: context.read<AddressCubit>(),
+              child: const AddressScreen(isSelectionMode: true),
+            ),
+          ),
+        )
+        .then((selectedAddress) {
+          if (selectedAddress != null) {
+            setState(() {
+              _selectedAddress = selectedAddress;
+            });
+          }
+        });
   }
 
   void _goToAddAddressScreen() {
@@ -152,7 +164,7 @@ class _OrdersViewState extends State<_OrdersView> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Dat hang thanh cong! Ma don: ${state.order.id}'),
+              content: Text('Đặt hàng thành công! Mã đơn: ${state.order.id}'),
               backgroundColor: Colors.green,
             ),
           );
@@ -172,25 +184,13 @@ class _OrdersViewState extends State<_OrdersView> {
           children: [
             Scaffold(
               backgroundColor: AppColors.lightBackground,
-              appBar: AppBar(
-                elevation: 0,
-                backgroundColor: AppColors.lightBackground,
-                scrolledUnderElevation: 0,
-                centerTitle: true,
-                title: Text(
-                  'Order',
-                  style: AppTextStyle.withColor(
-                    AppTextStyle.h3,
-                    Colors.black87,
-                  ),
-                ),
-              ),
+              appBar: BasicAppbar(titleText: 'Đặt hàng'),
               body: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _SectionTitle(title: 'Dia chi nhan hang'),
+                    _SectionTitle(title: 'Địa chỉ nhận hàng'),
                     const SizedBox(height: 10),
                     if (_isLoadingAddress)
                       const Padding(
@@ -225,13 +225,13 @@ class _OrdersViewState extends State<_OrdersView> {
                     const SizedBox(height: 18),
                     _SectionTitle(
                       title: _isBuyNow
-                          ? 'San pham mua ngay'
-                          : 'San pham da chon',
+                          ? 'Sản phẩm mua ngay'
+                          : 'Sản phẩm đã chọn',
                     ),
                     const SizedBox(height: 10),
                     _SelectedItemsCard(items: _displayItems),
                     const SizedBox(height: 18),
-                    _SectionTitle(title: 'Chi tiet thanh toan'),
+                    _SectionTitle(title: 'Chi tiết thanh toán'),
                     const SizedBox(height: 10),
                     _PaymentDetailCard(
                       subTotal: _subTotal,
@@ -261,7 +261,7 @@ class _OrdersViewState extends State<_OrdersView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tong phai tra',
+                            'Tổng phải trả',
                             style: AppTextStyle.withColor(
                               AppTextStyle.bodySmall,
                               Colors.black54,
@@ -298,7 +298,7 @@ class _OrdersViewState extends State<_OrdersView> {
                           ),
                         ),
                         child: Text(
-                          'Dat hang',
+                          'Đặt hàng',
                           style: AppTextStyle.buttonMedium,
                         ),
                       ),
@@ -326,7 +326,7 @@ class _OrdersViewState extends State<_OrdersView> {
     if (currentAddress == null || currentAddress.id.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vui long them dia chi nhan hang'),
+          content: Text('Vui lòng thêm địa chỉ nhận hàng'),
           backgroundColor: Colors.red,
         ),
       );
@@ -377,7 +377,7 @@ class _AddAddressCard extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                isSaving ? 'Dang luu dia chi...' : 'Them dia chi',
+                isSaving ? 'Đang lưu địa chỉ...' : 'Thêm địa chỉ',
                 style: AppTextStyle.withColor(
                   AppTextStyle.bodyMedium,
                   Colors.black87,
@@ -455,7 +455,7 @@ class _AddAddressDialogState extends State<_AddAddressDialog> {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Them dia chi that bai: $e'),
+          content: Text('Thêm địa chỉ thất bại: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -471,7 +471,7 @@ class _AddAddressDialogState extends State<_AddAddressDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Them dia chi'),
+      title: const Text('Thêm địa chỉ'),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -481,9 +481,9 @@ class _AddAddressDialogState extends State<_AddAddressDialog> {
               TextFormField(
                 controller: _nameController,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'Nguoi nhan'),
+                decoration: const InputDecoration(labelText: 'Người nhận'),
                 validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Vui long nhap ten nguoi nhan'
+                    ? 'Vui lòng nhập tên người nhận'
                     : null,
               ),
               const SizedBox(height: 10),
@@ -491,9 +491,9 @@ class _AddAddressDialogState extends State<_AddAddressDialog> {
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'So dien thoai'),
+                decoration: const InputDecoration(labelText: 'Số điện thoại'),
                 validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Vui long nhap so dien thoai'
+                    ? 'Vui lòng nhập số điện thoại'
                     : null,
               ),
               const SizedBox(height: 10),
@@ -501,9 +501,9 @@ class _AddAddressDialogState extends State<_AddAddressDialog> {
                 controller: _addressController,
                 minLines: 2,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Dia chi'),
+                decoration: const InputDecoration(labelText: 'Địa chỉ'),
                 validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Vui long nhap dia chi'
+                    ? 'Vui lòng nhập địa chỉ'
                     : null,
               ),
             ],
@@ -513,7 +513,7 @@ class _AddAddressDialogState extends State<_AddAddressDialog> {
       actions: [
         TextButton(
           onPressed: _submitting ? null : () => Navigator.of(context).pop(),
-          child: const Text('Huy'),
+          child: const Text('Hủy'),
         ),
         ElevatedButton(
           onPressed: _submitting ? null : _submit,
@@ -523,7 +523,7 @@ class _AddAddressDialogState extends State<_AddAddressDialog> {
                   height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Luu'),
+              : const Text('Lưu'),
         ),
       ],
     );
@@ -633,7 +633,7 @@ class _SelectedItemsCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
         ),
         child: Text(
-          'Chua co san pham nao duoc chon',
+          'Chưa có sản phẩm nào được chọn',
           style: AppTextStyle.withColor(
             AppTextStyle.bodyMedium,
             Colors.black54,
@@ -691,8 +691,8 @@ class _SelectedItemsCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         item.size != null && item.size!.isNotEmpty
-                            ? 'Mau: ${item.color} • Size: ${item.size} x${item.quantity}'
-                            : 'Mau: ${item.color} x${item.quantity}',
+                            ? 'Màu: ${item.color} • Size: ${item.size} x${item.quantity}'
+                            : 'Màu: ${item.color} x${item.quantity}',
                         style: AppTextStyle.withColor(
                           AppTextStyle.bodySmall,
                           Colors.black54,

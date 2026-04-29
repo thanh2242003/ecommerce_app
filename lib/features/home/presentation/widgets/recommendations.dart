@@ -52,10 +52,7 @@ class Recommendations extends StatelessWidget {
             'Đề xuất',
             style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
           ),
-          Text(
-            'Xem thêm',
-            style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
-          ),
+          TextButton(onPressed: () {}, child: const Text('Xem thêm')),
         ],
       ),
     );

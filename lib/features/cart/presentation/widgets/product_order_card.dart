@@ -29,18 +29,9 @@ class ProductOrderCard extends StatelessWidget {
         color: AppColors.lightBackground,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected
-              ? AppColors.primaryColor.withOpacity(0.6)
-              : Colors.black12,
+          color: isSelected ? AppColors.primaryColor : Colors.black12,
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),

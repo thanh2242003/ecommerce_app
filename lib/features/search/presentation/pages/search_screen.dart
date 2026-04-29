@@ -26,10 +26,7 @@ class SearchScreen extends StatelessWidget {
         ),
       )..loadCategories(),
       child: Scaffold(
-        appBar: BasicAppbar(
-          height: 80,
-          title: SearchField(),
-        ),
+        appBar: BasicAppbar(height: 80, titleWidget: SearchField()),
         body: BlocBuilder<SearchCubit, SearchState>(
           builder: (context, state) {
             if (state is SearchLoading) {
@@ -41,7 +38,7 @@ class SearchScreen extends StatelessWidget {
             if (state is SearchProductsLoaded) {
               return state.products.isEmpty
                   ? _notFound()
-                  : ProductGridView(products: state.products,);
+                  : ProductGridView(products: state.products);
             }
             if (state is SearchError) {
               return Center(child: Text(state.message));
@@ -57,13 +54,12 @@ class SearchScreen extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
+        final image = categories[index].image;
         return GestureDetector(
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const TopSellingScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const TopSellingScreen()),
             );
           },
           child: Container(
@@ -80,18 +76,23 @@ class SearchScreen extends StatelessWidget {
                   width: 50,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    image: DecorationImage(
-                      image: AssetImage("assets/images/${categories[index].image}"),
-                      fit: BoxFit.cover,
-                    ),
+                    shape: BoxShape.circle,
+                    image: image.isNotEmpty
+                        ? DecorationImage(
+                            image: AssetImage("assets/images/$image"),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
                   ),
+                  child: image.isEmpty
+                      ? const Icon(
+                          Icons.category_outlined,
+                          color: Colors.black54,
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 15),
-                Text(
-                  categories[index].title,
-                  style: AppTextStyle.bodyLarge,
-                ),
+                Text(categories[index].title, style: AppTextStyle.bodyLarge),
               ],
             ),
           ),
@@ -109,7 +110,10 @@ class SearchScreen extends StatelessWidget {
         children: [
           Icon(Icons.search_off, size: 80, color: Colors.grey),
           SizedBox(height: 16),
-          Text("No products found", style: TextStyle(fontSize: 16, color: Colors.grey)),
+          Text(
+            'Không tìm thấy sản phẩm nào',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
         ],
       ),
     );

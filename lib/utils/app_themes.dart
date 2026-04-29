@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppThemes {
-
   //light theme
   static final light = ThemeData(
     primaryColor: const Color(0xFFff5722),
@@ -33,7 +32,7 @@ class AppThemes {
     scaffoldBackgroundColor: const Color(0xFF121212),
     brightness: Brightness.dark,
     appBarTheme: const AppBarTheme(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Color(0xFF121212),
       elevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: Colors.black),
@@ -46,7 +45,7 @@ class AppThemes {
     ),
     cardColor: const Color(0xFF1E1E1E),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: Color(0xFF1E1E1E),
       selectedItemColor: Color(0xFFff5722),
       unselectedItemColor: Colors.grey,
     ),

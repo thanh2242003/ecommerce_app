@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:ecommerce_app/core/config/api_config.dart';
+import 'package:ecommerce_app/core/storage/token_storage.dart';
 import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
 
@@ -7,9 +8,10 @@ class ProductApiService {
   static const String baseUrl = '${ApiConfig.baseUrl}/product';
 
   // ================= HEADERS =================
-  static Map<String, String> _headers({String? token}) {
+  static Map<String, String> _headers({String? token, String? userId}) {
     return {
       'Content-Type': 'application/json',
+      if (userId != null) 'x-client-id': userId,
       if (token != null) 'authorization': token,
     };
   }
@@ -51,10 +53,22 @@ class ProductApiService {
   }
 
   // ================= SEARCH =================
-  static Future<List<ProductModel>> searchProducts(String keyword) async {
+  static Future<List<ProductModel>> searchProducts(
+    String keyword, {
+    String? categoryId,
+  }) async {
+    final tokenStorage = TokenStorage();
+    final userId = await tokenStorage.getUserId();
+    final accessToken = await tokenStorage.getAccessToken();
+
+    final queryParameters = <String, String>{
+      'q': keyword,
+      if (categoryId != null && categoryId.isNotEmpty) 'categoryId': categoryId,
+    };
+
     final response = await http.get(
-      Uri.parse('$baseUrl/search?q=$keyword'),
-      headers: _headers(),
+      Uri.parse('$baseUrl/search').replace(queryParameters: queryParameters),
+      headers: _headers(token: accessToken, userId: userId),
     );
 
     if (response.statusCode == 200) {
@@ -62,7 +76,7 @@ class ProductApiService {
 
       return data.map((e) => ProductModel.fromJson(e)).toList();
     } else {
-      throw Exception('Search failed: ${response.body}');
+      throw Exception('Tìm kiếm thất bại: ${response.body}');
     }
   }
 

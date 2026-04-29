@@ -1,11 +1,13 @@
 import 'package:ecommerce_app/core/theme/app_colors.dart';
 import 'package:ecommerce_app/core/theme/app_text_styles.dart';
 import 'package:ecommerce_app/core/storage/token_storage.dart';
+import 'package:ecommerce_app/core/widgets/basic_app_bar.dart';
 import 'package:ecommerce_app/features/order/data/models/order_response.dart';
 import 'package:ecommerce_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:ecommerce_app/features/order/data/sources/order_api_service.dart';
-import 'package:ecommerce_app/features/order/presentation/pages/order_history_detail_screen.dart';
 import 'package:flutter/material.dart';
+import '../widgets/history_order_card.dart';
+import 'order_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key, this.initialFilter});
@@ -83,16 +85,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: AppColors.lightBackground,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: Text(
-          'History',
-          style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black87),
-        ),
-      ),
+      appBar: BasicAppbar(titleText: 'Lịch sử đơn hàng'),
       body: Column(
         children: [
           SizedBox(
@@ -105,7 +98,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 final isSelected = _selectedFilter == filter;
 
                 return ChoiceChip(
-                  label: Text(filter),
+                  label: Text(_filterLabel(filter)),
                   selected: isSelected,
                   labelStyle: AppTextStyle.withColor(
                     AppTextStyle.bodySmall,
@@ -160,7 +153,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: _loadOrders,
-                child: const Text('Retry'),
+                child: const Text('Thử lại'),
               ),
             ],
           ),
@@ -171,7 +164,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     if (filteredOrders.isEmpty) {
       return Center(
         child: Text(
-          'No orders in $_selectedFilter',
+          'Không có đơn hàng ở trạng thái ${_filterLabel(_selectedFilter).toLowerCase()}',
           style: AppTextStyle.withColor(
             AppTextStyle.bodyMedium,
             Colors.black54,
@@ -188,76 +181,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (_, index) {
           final order = filteredOrders[index];
-          return _HistoryOrderCard(order: order);
+          return GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => OrderDetailScreen(orderId: order.id),
+                ),
+              );
+            },
+            child: HistoryOrderCard(order: order),
+          );
         },
       ),
     );
   }
 }
 
-class _HistoryOrderCard extends StatelessWidget {
-  const _HistoryOrderCard({required this.order});
-
-  final OrderResponse order;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => OrderHistoryDetailScreen(orderId: order.id),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF4F4F4),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.receipt_long_rounded,
-                color: AppColors.primaryColor,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Order #${order.id}',
-                    style: AppTextStyle.withColor(
-                      AppTextStyle.buttonMedium,
-                      Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${order.itemCount} items',
-                    style: AppTextStyle.withColor(
-                      AppTextStyle.bodySmall,
-                      Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.black45),
-          ],
-        ),
-      ),
-    );
+String _filterLabel(String filter) {
+  switch (filter.toLowerCase()) {
+    case 'pending':
+      return 'Chờ xác nhận';
+    case 'confirmed':
+      return 'Chờ lấy hàng';
+    case 'shipping':
+      return 'Chờ giao hàng';
+    case 'delivered':
+      return 'Đã giao';
+    case 'cancelled':
+      return 'Đã hủy';
+    default:
+      return filter;
   }
 }

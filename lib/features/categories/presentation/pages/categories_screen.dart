@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -13,16 +12,12 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const BasicAppbar(hideBack: false,),
+      appBar: const BasicAppbar(showBack: true),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _shopByCategories(),
-            SizedBox(height: 10),
-            _categories(),
-          ],
+          children: [_shopByCategories(), SizedBox(height: 10), _categories()],
         ),
       ),
     );
@@ -30,7 +25,7 @@ class CategoriesScreen extends StatelessWidget {
 }
 
 Widget _shopByCategories() {
-  return Text('Shop by Categories', style: AppTextStyle.h2);
+  return Text('Danh mục sản phẩm', style: AppTextStyle.h2);
 }
 
 Widget _categories() {
@@ -42,6 +37,7 @@ Widget _categories() {
         return ListView.separated(
           shrinkWrap: true,
           itemBuilder: (context, index) {
+            final image = state.categories[index].image;
             return GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -66,12 +62,20 @@ Widget _categories() {
                       width: 50,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        image: DecorationImage(
-                          //thay bang anh backend
-                          image: AssetImage("assets/images/${state.categories[index].image}"),
-                          fit: BoxFit.cover,
-                        ),
+                        shape: BoxShape.circle,
+                        image: image.isNotEmpty
+                            ? DecorationImage(
+                                image: AssetImage("assets/images/$image"),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
                       ),
+                      child: image.isEmpty
+                          ? const Icon(
+                              Icons.category_outlined,
+                              color: Colors.black54,
+                            )
+                          : null,
                     ),
                     SizedBox(width: 15),
                     Text(

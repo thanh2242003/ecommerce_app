@@ -21,7 +21,7 @@ class NewProduct extends StatelessWidget {
             children: [
               _seeAll(context),
               SizedBox(height: 20),
-              _products(context, state.topSellingProducts.take(3).toList()),
+              _products(context, state.latestProducts.take(3).toList()),
             ],
           );
         }
@@ -48,18 +48,14 @@ Widget _seeAll(BuildContext context) {
           "Hàng mới",
           style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
         ),
-        GestureDetector(
-          onTap: () {
+        TextButton(
+          onPressed: () {
             Navigator.push(
               context,
-              //sua phu hop voi new in
-              MaterialPageRoute(builder: (_) => TopSellingScreen()),
+              MaterialPageRoute(builder: (_) => const TopSellingScreen()),
             );
           },
-          child: Text(
-            "Xem thêm",
-            style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
-          ),
+          child: const Text('Xem thêm'),
         ),
       ],
     ),

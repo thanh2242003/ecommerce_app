@@ -26,12 +26,14 @@ class SearchCubit extends Cubit<SearchState> {
   }
 
   // 🔍 Search products
-  Future<void> searchProducts(String keyword) async {
+  Future<void> searchProducts(String keyword, {String? categoryId}) async {
     try {
       emit(SearchLoading());
 
-      final products =
-      await productRepository.getProductsByTitle(keyword);
+      final products = await productRepository.getProductsByTitle(
+        keyword,
+        categoryId: categoryId,
+      );
 
       emit(SearchProductsLoaded(products: products));
     } catch (e) {

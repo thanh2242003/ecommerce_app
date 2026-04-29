@@ -12,7 +12,6 @@ class RecommendationRepositoryImpl implements RecommendationRepository {
     try {
       return await apiService.getRecommendations();
     } catch (e) {
-      print('Error getting recommendations: $e');
       return [];
     }
   }

@@ -19,19 +19,11 @@ class Categories extends StatelessWidget {
           return Column(
             children: [
               _seeAll(context),
-              SizedBox(height: 20),
-              _categories(context,state.categories),
+              _categories(context, state.categories),
             ],
           );
         }
         return const SizedBox();
-        // return Column(
-        //   children: [
-        //     _seeAll(context),
-        //     SizedBox(height: 20),
-        //     _categories(state.categories),
-        //   ],
-        // );
       },
     );
   }
@@ -47,30 +39,28 @@ Widget _seeAll(BuildContext context) {
           "Danh mục",
           style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
         ),
-        GestureDetector(
-          onTap: () {
+        TextButton(
+          onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => CategoriesScreen()),
             );
           },
-          child: Text(
-            "Xem thêm",
-            style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
-          ),
+          child: const Text('Xem thêm'),
         ),
       ],
     ),
   );
 }
 
-Widget _categories(BuildContext context,List<CategoryEntity> categories) {
+Widget _categories(BuildContext context, List<CategoryEntity> categories) {
   return SizedBox(
     height: 100,
     child: ListView.separated(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemBuilder: (context, index) {
+        final image = categories[index].image;
         return Column(
           children: [
             Container(
@@ -79,13 +69,16 @@ Widget _categories(BuildContext context,List<CategoryEntity> categories) {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white,
-                image: DecorationImage(
-                  //sua thanh anh trong backend
-                  //image: NetworkImage(categories[index].image),
-                  image: AssetImage("assets/images/${categories[index].image}"),
-                  fit: BoxFit.cover,
-                ),
+                image: image.isNotEmpty
+                    ? DecorationImage(
+                        image: AssetImage("assets/images/$image"),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: image.isEmpty
+                  ? const Icon(Icons.category_outlined, color: Colors.black54)
+                  : null,
             ),
             SizedBox(height: 10),
             Text(

@@ -1,13 +1,23 @@
 class CategoryEntity {
-
-  final String title;
   final String categoryId;
-  final String image;
+  final String name;
+  final String slug;
+  final String description;
+  final bool isActive;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
-  CategoryEntity({
-    required this.title,
+  const CategoryEntity({
     required this.categoryId,
-    required this.image
+    required this.name,
+    required this.slug,
+    required this.description,
+    required this.isActive,
+    this.createdAt,
+    this.updatedAt,
   });
 
+  String get title => name;
+
+  String get image => '';
 }

@@ -1,6 +1,7 @@
 import 'package:ecommerce_app/core/theme/app_colors.dart';
 import 'package:ecommerce_app/core/theme/app_text_styles.dart';
 import 'package:ecommerce_app/core/utils/app_number_format.dart';
+import 'package:ecommerce_app/core/widgets/basic_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/cart_item.dart';
@@ -41,16 +42,9 @@ class _CartView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: AppColors.lightBackground,
-        scrolledUnderElevation: 0,
-        title: Text(
-          'My Cart',
-          style: AppTextStyle.withColor(AppTextStyle.h2, Colors.black87),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: AppColors.primaryColor),
+      appBar: BasicAppbar(
+        titleText: 'Giỏ hàng',
+        titleStyle: AppTextStyle.h2.copyWith(color: Colors.black87),
       ),
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {
@@ -74,7 +68,7 @@ class _CartView extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Failed to load cart',
+                      'Không tải được giỏ hàng',
                       style: AppTextStyle.withColor(
                         AppTextStyle.bodyLarge,
                         AppColors.primaryColor,
@@ -95,7 +89,7 @@ class _CartView extends StatelessWidget {
                         forceRefresh: true,
                       ),
                       icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('Retry'),
+                      label: const Text('Thử lại'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryColor,
                         foregroundColor: Colors.white,
@@ -225,7 +219,7 @@ class _SelectAllBar extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            'Select All  ($selectedCount/$totalItems)',
+            'Chọn tất cả  ($selectedCount/$totalItems)',
             style: AppTextStyle.withColor(
               AppTextStyle.bodyMedium,
               Colors.black87,
@@ -269,7 +263,7 @@ class _BottomCheckoutBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Total',
+                  'Tổng tiền',
                   style: AppTextStyle.withColor(
                     AppTextStyle.bodySmall,
                     Colors.black54,
@@ -317,8 +311,8 @@ class _BottomCheckoutBar extends StatelessWidget {
                 ),
                 child: Text(
                   selectedCount > 0
-                      ? 'Checkout ($selectedCount)'
-                      : 'Select Items',
+                      ? 'Thanh toán ($selectedCount)'
+                      : 'Chọn sản phẩm',
                   style: AppTextStyle.buttonMedium,
                 ),
               ),
@@ -345,12 +339,12 @@ class _EmptyCart extends StatelessWidget {
           Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.black12),
           const SizedBox(height: 16),
           Text(
-            'Your cart is empty',
+            'Giỏ hàng trống',
             style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black45),
           ),
           const SizedBox(height: 8),
           Text(
-            'Add items to get started',
+            'Thêm sản phẩm để bắt đầu',
             style: AppTextStyle.withColor(
               AppTextStyle.bodySmall,
               Colors.black45,

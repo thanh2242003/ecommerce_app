@@ -6,7 +6,12 @@ class GetRecommendationsUseCase {
 
   GetRecommendationsUseCase({required this.repository});
 
-  Future<List<ProductEntity>> call() {
-    return repository.getRecommendations();
+  Future<List<ProductEntity>> call({int? limit}) async {
+    final products = await repository.getRecommendations();
+    if (limit == null) {
+      return products;
+    }
+
+    return products.take(limit).toList();
   }
 }

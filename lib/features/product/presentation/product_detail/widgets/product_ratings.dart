@@ -20,7 +20,7 @@ class ProductRatings extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            '(${productEntity.totalReviews} reviews)',
+            '(${productEntity.totalReviews} đánh giá)',
             style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
         ],

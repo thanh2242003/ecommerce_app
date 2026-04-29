@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecommerce_app/core/services/notification_service.dart';
 import 'package:ecommerce_app/core/config/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:ecommerce_app/features/auth/data/models/auth_response_model.dart';
@@ -9,17 +10,12 @@ class AuthApiService {
   //     'http://192.168.50.217:3000/v1/api'; //'http://10.0.2.2:3000/v1/api';
   final String baseUrl = ApiConfig.baseUrl;
   final TokenStorage tokenStorage;
+  final NotificationService notificationService;
 
-  AuthApiService({required this.tokenStorage});
-
-  Future<Map<String, String>> _authHeaders() async {
-    final userId = await tokenStorage.getUserId();
-    if (userId == null || userId.isEmpty) {
-      throw Exception('Unauthenticated: User id not found');
-    }
-
-    return {'Content-Type': 'application/json', 'x-client-id': userId};
-  }
+  AuthApiService({
+    required this.tokenStorage,
+    required this.notificationService,
+  });
 
   Future<AuthResponseModel> signUp({
     required String name,
@@ -58,6 +54,7 @@ class AuthApiService {
         refreshToken: auth.refreshToken,
       );
       await tokenStorage.saveUserId(auth.user.id);
+      await notificationService.syncFcmTokenToBackend();
       return auth;
     } else {
       throw Exception('Sign in failed: ${response.body}');
@@ -65,36 +62,31 @@ class AuthApiService {
   }
 
   Future<void> logout() async {
-    final accessToken = await tokenStorage.getAccessToken();
-    if (accessToken == null) {
-      throw Exception('Unauthenticated: Access token not found');
-    }
-
-    final response = await http.post(
-      Uri.parse('$baseUrl/user/logout'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Logout failed: ${response.body}');
-    }
-
-    // Clear tokens after logout
+    await notificationService.removeFcmTokenFromBackend();
     await tokenStorage.clearTokens();
   }
 
   Future<AuthResponseModel> refreshAccessToken() async {
     final refreshToken = await tokenStorage.getRefreshToken();
-    if (refreshToken == null) {
+    final userId = await tokenStorage.getUserId();
+
+    if (refreshToken == null || refreshToken.isEmpty) {
       throw Exception('Unauthenticated: Refresh token not found');
     }
 
+    if (userId == null || userId.isEmpty) {
+      throw Exception('Unauthenticated: User id not found');
+    }
+
+    // Endpoint: POST /v1/api/handlerRefreshToken
+    // Headers: x-client-id, x-rtoken-id (authorization NOT required)
     final response = await http.post(
-      Uri.parse('$baseUrl/user/handlerRefeshTokenV2'),
-      headers: {...(await _authHeaders()), 'x-rtoken-id': refreshToken},
+      Uri.parse('$baseUrl/handlerRefreshToken'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-client-id': userId,
+        'x-rtoken-id': refreshToken,
+      },
     );
 
     if (response.statusCode == 200) {
@@ -106,6 +98,7 @@ class AuthApiService {
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
       );
+      await notificationService.syncFcmTokenToBackend();
 
       return authResponse;
     } else {

@@ -33,7 +33,7 @@ class ProductDetailScreen extends StatelessWidget {
         //BlocProvider(create: (context) => FavoriteIconCubit()..isFavorite(productEntity.productId))
       ],
       child: Scaffold(
-        appBar: BasicAppbar(hideBack: false, action: FavoriteButton()),
+        appBar: BasicAppbar(showBack: true, action: FavoriteButton()),
         bottomNavigationBar: AddToCart(productEntity: productEntity),
         body: SingleChildScrollView(
           child: Column(

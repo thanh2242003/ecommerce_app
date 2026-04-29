@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/widgets/basic_app_bar.dart';
 import '../../../domain/entities/product.dart';
 import '../../../domain/entities/review.dart';
 
@@ -17,14 +18,14 @@ class ProductReviews extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Reviews',
+            'Đánh giá',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
           if (reviews.isEmpty)
-            const Text('No reviews yet.')
+            const Text('Chưa có đánh giá nào.')
           else
-            ...reviews.map((review) => _buildReviewItem(review)).toList(),
+            ...reviews.map((review) => _buildReviewItem(review)),
           if (productEntity.reviews.length > 5)
             TextButton(
               onPressed: () {
@@ -37,7 +38,7 @@ class ProductReviews extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('View All Reviews'),
+              child: const Text('Xem tất cả đánh giá'),
             ),
         ],
       ),
@@ -89,7 +90,7 @@ class ReviewsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('All Reviews')),
+      appBar: BasicAppbar(titleText: 'Tất cả đánh giá'),
       body: ListView.builder(
         itemCount: productEntity.reviews.length,
         itemBuilder: (context, index) {

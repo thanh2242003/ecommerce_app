@@ -60,8 +60,6 @@ class CartApiService {
   Future<Map<String, String>> _headers() async {
     final token = await tokenStorage.getAccessToken();
     final userId = await tokenStorage.getUserId();
-    print("ACCESS TOKEN: $token");
-    print("USER ID: $userId");
 
     if (token == null || token.isEmpty || userId == null || userId.isEmpty) {
       throw Exception('Unauthenticated');

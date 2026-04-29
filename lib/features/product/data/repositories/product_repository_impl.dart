@@ -4,6 +4,18 @@ import '../../domain/repositories/product_repository.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   @override
+  Future<List<ProductEntity>> getProducts({
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      return await ProductApiService.getProducts(page: page, limit: limit);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
   Future<List<ProductEntity>> getTopSellingProducts() async {
     try {
       // Gọi trực tiếp từ ApiService
@@ -25,10 +37,16 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<List<ProductEntity>> getProductsByTitle(String title) async {
+  Future<List<ProductEntity>> getProductsByTitle(
+    String title, {
+    String? categoryId,
+  }) async {
     try {
       if (title.isEmpty) return [];
-      return await ProductApiService.searchProducts(title);
+      return await ProductApiService.searchProducts(
+        title,
+        categoryId: categoryId,
+      );
     } catch (e) {
       return [];
     }

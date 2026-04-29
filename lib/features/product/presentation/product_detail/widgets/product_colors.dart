@@ -7,10 +7,7 @@ import '../bloc/product_color_selection_cubit.dart';
 
 class ProductColors extends StatelessWidget {
   final ProductEntity productEntity;
-  const ProductColors({
-    required this.productEntity,
-    super.key
-  });
+  const ProductColors({required this.productEntity, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +15,11 @@ class ProductColors extends StatelessWidget {
       height: MediaQuery.of(context).size.height / 2,
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
-          color: AppColors.lightBackground,
-          borderRadius: BorderRadius.only(
-              topRight: Radius.circular(16),
-              topLeft: Radius.circular(16)
-          )
+        color: AppColors.lightBackground,
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(16),
+          topLeft: Radius.circular(16),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -33,91 +30,87 @@ class ProductColors extends StatelessWidget {
               children: [
                 const Center(
                   child: Text(
-                    'Color',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22
-                    ),
+                    'Màu sắc',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                   ),
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.close)
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.close),
                   ),
-                )
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 20,),
+          const SizedBox(height: 20),
           Expanded(
             child: ListView.separated(
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return BlocBuilder<ProductColorSelectionCubit,int>(
-                    builder: (context, state) => GestureDetector(
-                      onTap: (){
-                        context.read<ProductColorSelectionCubit>().itemSelection(index);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        height: 60,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                            color: state == index ? AppColors.primaryColor :
-                            AppColors.secondColor,
-                            borderRadius: BorderRadius.circular(50)
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              productEntity.colors[index].title,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16
-                              ),
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return BlocBuilder<ProductColorSelectionCubit, int>(
+                  builder: (context, state) => GestureDetector(
+                    onTap: () {
+                      context.read<ProductColorSelectionCubit>().itemSelection(
+                        index,
+                      );
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      height: 60,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: state == index
+                            ? AppColors.primaryColor
+                            : AppColors.secondColor,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            productEntity.colors[index].title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
-                            Row(
-                              children: [
-                                Container(
-                                  height: 20,
-                                  width: 20,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromRGBO(
-                                        productEntity.colors[index].rgb[0],
-                                        productEntity.colors[index].rgb[1],
-                                        productEntity.colors[index].rgb[2],
-                                        1
-                                    ),
-                                    shape: BoxShape.circle,
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                height: 20,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(
+                                    productEntity.colors[index].rgb[0],
+                                    productEntity.colors[index].rgb[1],
+                                    productEntity.colors[index].rgb[2],
+                                    1,
                                   ),
+                                  shape: BoxShape.circle,
                                 ),
-                                const SizedBox(width: 15, ),
-                                state == index ?
-                                const Icon(
-                                  Icons.check,
-                                  size: 30,
-                                ) : Container(
-                                  width: 30,
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                              const SizedBox(width: 15),
+                              state == index
+                                  ? const Icon(Icons.check, size: 30)
+                                  : Container(width: 30),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                },
-                separatorBuilder: (context, index) => const SizedBox(height:20,),
-                itemCount: productEntity.colors.length
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) => const SizedBox(height: 20),
+              itemCount: productEntity.colors.length,
             ),
           ),
         ],
-      ) ,
+      ),
     );
   }
 }

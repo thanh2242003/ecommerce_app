@@ -46,17 +46,14 @@ Widget _seeAll(BuildContext context) {
           "Bán chạy",
           style: AppTextStyle.withColor(AppTextStyle.h3, Colors.black),
         ),
-        GestureDetector(
-          onTap: () {
+        TextButton(
+          onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => TopSellingScreen()),
+              MaterialPageRoute(builder: (_) => const TopSellingScreen()),
             );
           },
-          child: Text(
-            "Xem thêm",
-            style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.blue),
-          ),
+          child: const Text('Xem thêm'),
         ),
       ],
     ),
@@ -68,7 +65,7 @@ Widget _products(BuildContext context, List<ProductEntity> products) {
   if (products.isEmpty) {
     return const SizedBox(
       height: 200,
-      child: Center(child: Text("No products available")),
+      child: Center(child: Text('Không có sản phẩm nào')),
     );
   }
 

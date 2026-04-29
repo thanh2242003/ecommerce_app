@@ -6,7 +6,12 @@ class GetTopSellingProducts {
 
   GetTopSellingProducts(this.productRepository);
 
-  Future<List<ProductEntity>> call() async {
-    return await productRepository.getTopSellingProducts();
+  Future<List<ProductEntity>> call({int? limit}) async {
+    final products = await productRepository.getTopSellingProducts();
+    if (limit == null) {
+      return products;
+    }
+
+    return products.take(limit).toList();
   }
 }

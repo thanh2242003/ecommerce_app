@@ -22,5 +22,5 @@ class SearchProductsLoaded extends SearchState {
 class SearchError extends SearchState {
   final String message;
 
-  SearchError({this.message = "Something went wrong"});
+  SearchError({this.message = 'Đã có lỗi xảy ra'});
 }

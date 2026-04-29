@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/basic_app_bar.dart';
 import '../bloc/home_cubit.dart';
 import '../bloc/recommendation_cubit.dart';
-
 import '../widgets/categories.dart';
-import '../widgets/header.dart';
-import '../widgets/new_product.dart';
-import '../widgets/recommendations.dart';
-import '../widgets/top_selling.dart';
+import '../widgets/home_banner_carousel.dart';
+import '../widgets/home_product_tabs.dart';
+import '../widgets/home_search_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +20,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
+
+  static const List<String> _bannerImages = [
+    'assets/images/intro.png',
+    'assets/images/intro1.png',
+    'assets/images/intro2.png',
+  ];
 
   Future<void> _onRefresh() async {
     await Future.wait([
@@ -52,9 +58,16 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
+      appBar: BasicAppbar(
+        titleText: 'Trang chủ',
+        showBack: false,
+        titleStyle: AppTextStyle.h2.copyWith(color: Colors.black87),
+      ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Header(),
+          const HomeSearchBar(),
+          const SizedBox(height: 16),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _onRefresh,
@@ -65,11 +78,13 @@ class _HomeScreenState extends State<HomeScreen>
                   parent: BouncingScrollPhysics(),
                 ),
                 child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    HomeBannerCarousel(images: _bannerImages),
+                    SizedBox(height: 20),
                     Categories(),
-                    TopSelling(),
-                    NewProduct(),
-                    Recommendations(),
+                    SizedBox(height: 20),
+                    HomeProductTabs(),
                   ],
                 ),
               ),

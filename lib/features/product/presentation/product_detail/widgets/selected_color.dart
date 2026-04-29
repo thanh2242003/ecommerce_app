@@ -57,7 +57,7 @@ class SelectedColor extends StatelessWidget {
                           ),
                         ),
                       )
-                    : Text('N/A', style: AppTextStyle.bodySmall),
+                    : Text('Không có', style: AppTextStyle.bodySmall),
                 const SizedBox(width: 15),
                 const Icon(Icons.keyboard_arrow_down, size: 30),
               ],
