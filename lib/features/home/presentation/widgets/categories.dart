@@ -74,11 +74,11 @@ Widget _categories(BuildContext context, List<CategoryEntity> categories) {
                         image: AssetImage("assets/images/$image"),
                         fit: BoxFit.cover,
                       )
-                    : null,
+                    : DecorationImage(
+                        image: AssetImage("assets/images/shoes2.jpg"),
+                        fit: BoxFit.cover,
+                      ),
               ),
-              child: image.isEmpty
-                  ? const Icon(Icons.category_outlined, color: Colors.black54)
-                  : null,
             ),
             SizedBox(height: 10),
             Text(

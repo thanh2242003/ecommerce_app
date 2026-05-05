@@ -57,6 +57,7 @@ class CartCubit extends Cubit<CartState> {
     required int quantity,
     required String color,
     String? size,
+    String? variantId,
   }) async {
     if (_isAdding) {
       return;
@@ -71,6 +72,7 @@ class CartCubit extends Cubit<CartState> {
         quantity: quantity,
         color: color,
         size: size,
+        variantId: variantId,
       );
 
       await fetchCart(forceRefresh: true);
@@ -124,6 +126,7 @@ class CartCubit extends Cubit<CartState> {
         quantity: newQty,
         color: item.color,
         size: item.size,
+        variantId: item.variantId,
       );
 
       emit(
@@ -159,6 +162,7 @@ class CartCubit extends Cubit<CartState> {
         quantity: newQty,
         color: item.color,
         size: item.size,
+        variantId: item.variantId,
       );
 
       emit(
@@ -197,6 +201,7 @@ class CartCubit extends Cubit<CartState> {
           productId: item.productId,
           color: item.color,
           size: item.size,
+          variantId: item.variantId,
         );
       }
 

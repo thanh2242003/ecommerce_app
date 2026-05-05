@@ -1,8 +1,10 @@
 import '../../domain/entities/product.dart';
 
 import '../../domain/entities/color.dart';
+import '../../domain/entities/variant.dart';
 import 'color_model.dart';
 import 'review_model.dart';
+import 'variant_model.dart';
 
 class ProductModel extends ProductEntity {
   ProductModel({
@@ -14,6 +16,7 @@ class ProductModel extends ProductEntity {
     required super.images,
     required super.price,
     required super.sizes,
+    required super.variants,
     required super.productId,
     required super.salesNumber,
     required super.title,
@@ -35,6 +38,7 @@ class ProductModel extends ProductEntity {
       colors: _parseColors(json),
       gender: json['gender'] ?? 0,
       sizes: List<String>.from(json['sizes'] ?? []),
+      variants: _parseVariants(json),
       description: json['description'] ?? '',
       ratings: (json['ratings'] as num?)?.toDouble() ?? 0.0,
       reviews: (json['reviews'] as List? ?? [])
@@ -79,5 +83,22 @@ class ProductModel extends ProductEntity {
     }
 
     return <ProductColorEntity>[];
+  }
+
+  static List<ProductVariantEntity> _parseVariants(Map<String, dynamic> json) {
+    final dynamic rawVariants =
+        json['variants'] ??
+        (json['product_variants'] is Map<String, dynamic>
+            ? json['product_variants']['variants']
+            : null);
+
+    if (rawVariants is List) {
+      return rawVariants
+          .whereType<Map<String, dynamic>>()
+          .map((variant) => ProductVariantModel.fromJson(variant).toEntity())
+          .toList();
+    }
+
+    return <ProductVariantEntity>[];
   }
 }

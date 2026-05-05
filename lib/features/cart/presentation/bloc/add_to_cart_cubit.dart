@@ -15,6 +15,7 @@ class AddToCartCubit extends Cubit<AddToCartState> {
     required int quantity,
     required String color,
     String? size,
+    String? variantId,
   }) async {
     try {
       emit(AddToCartLoading());
@@ -24,6 +25,7 @@ class AddToCartCubit extends Cubit<AddToCartState> {
         quantity: quantity,
         color: color,
         size: size,
+        variantId: variantId,
       );
 
       emit(AddToCartSuccess(cartItem: cartItem));

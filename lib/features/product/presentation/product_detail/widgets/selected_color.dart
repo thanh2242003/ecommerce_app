@@ -6,6 +6,8 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/widgets/app_bottomsheet.dart';
 import '../../../domain/entities/product.dart';
 import '../bloc/product_color_selection_cubit.dart';
+import '../bloc/product_size_selection_cubit.dart';
+import 'variant_stock_helper.dart';
 
 class SelectedColor extends StatelessWidget {
   final ProductEntity productEntity;
@@ -20,8 +22,19 @@ class SelectedColor extends StatelessWidget {
           ? () {
               AppBottomsheet.display(
                 context,
-                BlocProvider.value(
-                  value: BlocProvider.of<ProductColorSelectionCubit>(context),
+                MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(
+                      value: BlocProvider.of<ProductColorSelectionCubit>(
+                        context,
+                      ),
+                    ),
+                    BlocProvider.value(
+                      value: BlocProvider.of<ProductSizeSelectionCubit>(
+                        context,
+                      ),
+                    ),
+                  ],
                   child: ProductColors(productEntity: productEntity),
                 ),
               );
@@ -43,19 +56,49 @@ class SelectedColor extends StatelessWidget {
               children: [
                 hasColors
                     ? BlocBuilder<ProductColorSelectionCubit, int>(
-                        builder: (context, state) => Container(
-                          height: 20,
-                          width: 20,
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(
-                              productEntity.colors[state].rgb[0],
-                              productEntity.colors[state].rgb[1],
-                              productEntity.colors[state].rgb[2],
-                              1,
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
+                        builder: (context, state) {
+                          final selectedSizeIndex = context
+                              .read<ProductSizeSelectionCubit>()
+                              .state;
+                          final selectedSize =
+                              selectedSizeIndex >= 0 &&
+                                  selectedSizeIndex < productEntity.sizes.length
+                              ? productEntity.sizes[selectedSizeIndex]
+                              : null;
+                          final selectedColor =
+                              productEntity.colors[state].title;
+                          final stock = VariantStockHelper.getColorStock(
+                            productEntity,
+                            selectedColor,
+                            selectedSize,
+                          );
+
+                          return Row(
+                            children: [
+                              Text(
+                                stock > 0 ? 'Còn $stock' : 'Hết hàng',
+                                style: AppTextStyle.withColor(
+                                  AppTextStyle.bodySmall,
+                                  stock > 0 ? Colors.black54 : Colors.red,
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              Container(
+                                height: 20,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(
+                                    productEntity.colors[state].rgb[0],
+                                    productEntity.colors[state].rgb[1],
+                                    productEntity.colors[state].rgb[2],
+                                    1,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       )
                     : Text('Không có', style: AppTextStyle.bodySmall),
                 const SizedBox(width: 15),

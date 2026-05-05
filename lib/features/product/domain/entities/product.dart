@@ -1,5 +1,6 @@
 import 'color.dart';
 import 'review.dart';
+import 'variant.dart';
 
 class ProductEntity {
   final String categoryId;
@@ -10,6 +11,7 @@ class ProductEntity {
   final List<String> images;
   final int price;
   final List<String> sizes;
+  final List<ProductVariantEntity> variants;
   final String productId;
   final int salesNumber;
   final String title;
@@ -27,6 +29,7 @@ class ProductEntity {
     required this.images,
     required this.price,
     required this.sizes,
+    required this.variants,
     required this.productId,
     required this.salesNumber,
     required this.title,

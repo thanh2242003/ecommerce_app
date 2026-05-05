@@ -45,6 +45,7 @@ class _CartView extends StatelessWidget {
       appBar: BasicAppbar(
         titleText: 'Giỏ hàng',
         titleStyle: AppTextStyle.h2.copyWith(color: Colors.black87),
+        showBack: false,
       ),
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {

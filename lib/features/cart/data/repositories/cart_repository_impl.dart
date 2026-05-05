@@ -13,12 +13,14 @@ class CartRepositoryImpl implements CartRepository {
     required int quantity,
     required String color,
     String? size,
+    String? variantId,
   }) async {
     return await apiService.addToCart(
       productId: productId,
       quantity: quantity,
       color: color,
       size: size,
+      variantId: variantId,
     );
   }
 
@@ -33,12 +35,14 @@ class CartRepositoryImpl implements CartRepository {
     required int quantity,
     String? color,
     String? size,
+    String? variantId,
   }) async {
     return await apiService.updateQuantity(
       productId: productId,
       quantity: quantity,
       color: color,
       size: size,
+      variantId: variantId,
     );
   }
 
@@ -47,11 +51,13 @@ class CartRepositoryImpl implements CartRepository {
     required String productId,
     String? color,
     String? size,
+    String? variantId,
   }) async {
     return await apiService.deleteItem(
       productId: productId,
       color: color,
       size: size,
+      variantId: variantId,
     );
   }
 }

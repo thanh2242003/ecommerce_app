@@ -93,6 +93,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       appBar: BasicAppbar(
         titleText: 'Thông báo',
         titleStyle: AppTextStyle.h2.copyWith(color: Colors.black87),
+        showBack: false,
         action: BlocBuilder<NotificationCubit, NotificationState>(
           builder: (context, state) {
             final hasUnreadItems = state.notifications.any(

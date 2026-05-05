@@ -1,6 +1,7 @@
 class CartItemEntity {
   final String cartItemId;
   final String productId;
+  final String? variantId;
   final int quantity;
   final String color;
   final String? size;
@@ -11,6 +12,7 @@ class CartItemEntity {
   const CartItemEntity({
     required this.cartItemId,
     required this.productId,
+    this.variantId,
     required this.quantity,
     required this.color,
     this.size,
@@ -22,6 +24,7 @@ class CartItemEntity {
   CartItemEntity copyWith({
     String? cartItemId,
     String? productId,
+    String? variantId,
     int? quantity,
     String? color,
     String? size,
@@ -32,6 +35,7 @@ class CartItemEntity {
     return CartItemEntity(
       cartItemId: cartItemId ?? this.cartItemId,
       productId: productId ?? this.productId,
+      variantId: variantId ?? this.variantId,
       quantity: quantity ?? this.quantity,
       color: color ?? this.color,
       size: size ?? this.size,

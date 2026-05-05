@@ -4,6 +4,7 @@ class CartItemModel extends CartItemEntity {
   const CartItemModel({
     required super.cartItemId,
     required super.productId,
+    super.variantId,
     required super.quantity,
     required super.color,
     super.size,
@@ -17,6 +18,7 @@ class CartItemModel extends CartItemEntity {
     String productName = '';
     String? productImage;
     String? size;
+    String? variantId;
     int productPrice = 0;
 
     if (product is Map<String, dynamic>) {
@@ -35,6 +37,9 @@ class CartItemModel extends CartItemEntity {
     }
 
     size = json['size'] as String?;
+    variantId = (json['variantId'] ?? json['variant_id'] ?? json['variant'])
+        ?.toString();
+    variantId ??= _deriveVariantId(productId, json['color'], size);
 
     return CartItemModel(
       cartItemId:
@@ -43,6 +48,7 @@ class CartItemModel extends CartItemEntity {
           '${productId}_${json['color'] ?? ''}_${size ?? ''}',
 
       productId: productId,
+      variantId: variantId,
       quantity: json['quantity'] ?? 0,
       color: json['color'] ?? '',
       size: size,
@@ -88,10 +94,30 @@ class CartItemModel extends CartItemEntity {
     return {
       'cartItemId': cartItemId,
       'productId': productId,
+      'variantId': variantId,
       'quantity': quantity,
       'color': color,
       'size': size,
       'price': price,
     };
+  }
+
+  static String _deriveVariantId(
+    String productId,
+    Object? color,
+    String? size,
+  ) {
+    final normalizedColor = (color ?? '').toString().trim();
+    final normalizedSize = (size ?? '').trim();
+    final parts = <String>[productId];
+
+    if (normalizedColor.isNotEmpty) {
+      parts.add(normalizedColor);
+    }
+    if (normalizedSize.isNotEmpty) {
+      parts.add(normalizedSize);
+    }
+
+    return parts.join('_');
   }
 }

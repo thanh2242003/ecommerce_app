@@ -65,7 +65,7 @@ class _OrdersViewState extends State<_OrdersView> {
   String? _addressError;
   bool _isLoadingAddress = false;
 
-  static const int _shippingFee = 30000;
+  static const int _shippingFee = 20000;
   static const int _voucherDiscount = 20000;
 
   @override
@@ -339,13 +339,16 @@ class _OrdersViewState extends State<_OrdersView> {
         currentAddress.id,
         widget.product!.productId,
         widget.product!.quantity,
-        widget.product!.color,
-        widget.product!.size,
+        widget.product!.variantId,
+        _totalPayment,
       );
       return;
     }
 
-    context.read<OrderCubit>().createCartOrder(currentAddress.id);
+    context.read<OrderCubit>().createCartOrder(
+      currentAddress.id,
+      _totalPayment,
+    );
   }
 }
 

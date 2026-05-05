@@ -9,6 +9,7 @@ import 'package:ecommerce_app/features/product/data/sources/product_api_service.
 import 'package:ecommerce_app/features/product/domain/entities/color.dart';
 import 'package:ecommerce_app/features/product/domain/entities/product.dart';
 import 'package:ecommerce_app/features/product/domain/entities/review.dart';
+import 'package:ecommerce_app/features/product/domain/entities/variant.dart';
 import 'package:ecommerce_app/features/product/presentation/pages/product_detail_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -286,8 +287,9 @@ class NotificationService {
     // a minimal non-null context for SnackBar fallback by using the navigatorKey's
     // currentState.context if possible. If still null, throw to highlight misuse.
     final ctx = _navigatorKey.currentState?.context;
-    if (ctx == null)
+    if (ctx == null) {
       throw Exception('No context available for snackBar fallback');
+    }
     return ctx;
   }
 
@@ -397,6 +399,7 @@ class NotificationService {
       images: _parseStringList(data['images']),
       price: _intValue(data['price']),
       sizes: _parseStringList(data['sizes']),
+      variants: const <ProductVariantEntity>[],
       productId: productId,
       salesNumber: _intValue(data['salesNumber']),
       title: title,

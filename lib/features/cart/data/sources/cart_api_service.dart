@@ -78,15 +78,17 @@ class CartApiService {
     required int quantity,
     required String color,
     String? size,
+    String? variantId,
   }) async {
+    final resolvedVariantId =
+        variantId ?? _deriveVariantId(productId, color, size);
     final response = await http.post(
       Uri.parse('$baseUrl/cart/add'),
       headers: await _headers(),
       body: json.encode({
         'productId': productId,
+        'variantId': resolvedVariantId,
         'quantity': quantity,
-        'color': color,
-        if (size != null) 'size': size,
       }),
     );
 
@@ -104,15 +106,17 @@ class CartApiService {
     required int quantity,
     String? color,
     String? size,
+    String? variantId,
   }) async {
+    final resolvedVariantId =
+        variantId ?? _deriveVariantId(productId, color, size);
     final response = await http.post(
       Uri.parse('$baseUrl/cart/update'),
       headers: await _headers(),
       body: json.encode({
         'productId': productId,
+        'variantId': resolvedVariantId,
         'quantity': quantity,
-        if (color != null) 'color': color,
-        if (size != null) 'size': size,
       }),
     );
 
@@ -138,14 +142,16 @@ class CartApiService {
     required String productId,
     String? color,
     String? size,
+    String? variantId,
   }) async {
+    final resolvedVariantId =
+        variantId ?? _deriveVariantId(productId, color, size);
     final response = await http.delete(
       Uri.parse('$baseUrl/cart'),
       headers: await _headers(),
       body: json.encode({
         'productId': productId,
-        if (color != null) 'color': color,
-        if (size != null) 'size': size,
+        'variantId': resolvedVariantId,
       }),
     );
 
@@ -204,5 +210,20 @@ class CartApiService {
     } else {
       throw Exception('Failed to fetch cart: ${response.body}');
     }
+  }
+
+  String _deriveVariantId(String productId, String? color, String? size) {
+    final parts = <String>[productId];
+    final normalizedColor = color?.trim();
+    final normalizedSize = size?.trim();
+
+    if (normalizedColor != null && normalizedColor.isNotEmpty) {
+      parts.add(normalizedColor);
+    }
+    if (normalizedSize != null && normalizedSize.isNotEmpty) {
+      parts.add(normalizedSize);
+    }
+
+    return parts.join('_');
   }
 }

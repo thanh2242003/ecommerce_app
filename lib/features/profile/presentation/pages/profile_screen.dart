@@ -8,6 +8,7 @@ import 'package:ecommerce_app/features/order/presentation/pages/history_screen.d
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../auth/presentation/pages/login_screen.dart';
 import '../bloc/user_cubit.dart';
 import '../bloc/user_state.dart';
 import 'package:ecommerce_app/features/auth/presentation/bloc/auth_cubit.dart';
@@ -120,6 +121,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
     await context.read<AppStartCubit>().goToLogin();
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
   }
 
   Future<void> _openHistoryWithFilter(String filter) async {

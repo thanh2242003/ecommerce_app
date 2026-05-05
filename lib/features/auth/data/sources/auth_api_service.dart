@@ -85,6 +85,7 @@ class AuthApiService {
       headers: {
         'Content-Type': 'application/json',
         'x-client-id': userId,
+        'authorization': (await tokenStorage.getAccessToken()) ?? '',
         'x-rtoken-id': refreshToken,
       },
     );

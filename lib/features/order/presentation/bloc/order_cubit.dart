@@ -10,10 +10,14 @@ class OrderCubit extends Cubit<OrderState> {
 
   final OrderRepository orderRepository;
 
-  Future<void> createCartOrder(String addressId) async {
+  Future<void> createCartOrder(String addressId, int finalPrice) async {
     emit(const OrderLoading());
     try {
-      final request = OrderRequest(type: 'cart', addressId: addressId);
+      final request = OrderRequest(
+        type: 'cart',
+        addressId: addressId,
+        finalPrice: finalPrice,
+      );
       final response = await orderRepository.createOrder(request);
       emit(OrderSuccess(response));
     } catch (e) {
@@ -25,8 +29,8 @@ class OrderCubit extends Cubit<OrderState> {
     String addressId,
     String productId,
     int quantity,
-    String color,
-    String? size,
+    String? variantId,
+    int finalPrice,
   ) async {
     emit(const OrderLoading());
     try {
@@ -34,9 +38,9 @@ class OrderCubit extends Cubit<OrderState> {
         type: 'buy_now',
         addressId: addressId,
         productId: productId,
+        variantId: variantId,
         quantity: quantity,
-        color: color,
-        size: size,
+        finalPrice: finalPrice,
       );
       final response = await orderRepository.createOrder(request);
       emit(OrderSuccess(response));
