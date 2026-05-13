@@ -2,9 +2,13 @@ import 'package:ecommerce_app/core/theme/app_colors.dart';
 import 'package:ecommerce_app/features/address/presentation/pages/address_screen.dart';
 import 'package:ecommerce_app/features/app_start/presentation/bloc/app_start_cubit.dart';
 import 'package:ecommerce_app/core/storage/token_storage.dart';
+import 'package:ecommerce_app/features/order/data/models/order_response.dart';
+import 'package:ecommerce_app/features/order/data/models/user_review_item.dart';
 import 'package:ecommerce_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:ecommerce_app/features/order/data/sources/order_api_service.dart';
+import 'package:ecommerce_app/features/order/data/sources/review_api_service.dart';
 import 'package:ecommerce_app/features/order/presentation/pages/history_screen.dart';
+import 'package:ecommerce_app/features/order/presentation/pages/order_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -160,7 +164,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final repository = OrderRepositoryImpl(
         apiService: OrderApiService(tokenStorage: _tokenStorage),
       );
-      final orders = await repository.getOrders();
+      final reviewService = ReviewApiService(tokenStorage: _tokenStorage);
+      final results = await Future.wait([
+        repository.getOrders(),
+        reviewService.getUserReviews(page: 1, limit: 100),
+      ]);
+      final orders = results[0] as List<OrderResponse>;
+      final reviews = results[1] as List<UserReviewItem>;
+      final reviewedProductIds = reviews
+          .map((review) => review.productId.trim())
+          .where((productId) => productId.isNotEmpty)
+          .toSet();
 
       if (!mounted) {
         return;
@@ -178,7 +192,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .length;
         _reviewCount = orders
             .where((order) => order.status.toLowerCase() == 'delivered')
-            .length;
+            .fold<int>(0, (count, order) {
+              final pendingItems = order.items.where((item) {
+                final productId = item.productId.trim();
+                return productId.isNotEmpty &&
+                    !reviewedProductIds.contains(productId);
+              }).length;
+              return count + pendingItems;
+            });
       });
     } catch (_) {
       // Keep current badge counts when order API fails.
@@ -323,7 +344,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               icon: Icons.star_border,
                               label: 'Đánh giá',
                               badgeCount: _reviewCount,
-                              onTap: () => _openHistoryWithFilter('delivered'),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const OrderReviewScreen(),
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),

@@ -62,9 +62,10 @@ class ProductOrderCard extends StatelessWidget {
                 height: 72,
                 child:
                     item.productImage != null && item.productImage!.isNotEmpty
-                    ? Image.asset(
-                        'assets/images/${item.productImage!}',
+                    ? Image.network(
+                        item.productImage!,
                         fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _placeholder(),
                       )
                     : _placeholder(),
               ),

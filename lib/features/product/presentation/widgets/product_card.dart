@@ -35,6 +35,10 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = productEntity.images.isNotEmpty
+        ? productEntity.images.first
+        : null;
+
     return GestureDetector(
       //tap vao thi chuyen den product detail tuong ung
       onTap: () => _openProductDetail(context),
@@ -53,14 +57,12 @@ class ProductCard extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  image: DecorationImage(
-                    //sua thanh anh trong backend
-                    //image: NetworkImage(product.images[0]),
-                    image: AssetImage(
-                      'assets/images/${productEntity.images[0]}',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
+                  image: imageUrl != null && imageUrl.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(imageUrl),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(8),
                     topRight: Radius.circular(8),

@@ -732,21 +732,8 @@ class _OrderProductImage extends StatelessWidget {
       return _placeholder();
     }
 
-    final value = image!;
-    if (value.startsWith('http://') || value.startsWith('https://')) {
-      return Image.network(
-        value,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(),
-      );
-    }
-
-    final assetPath = value.startsWith('assets/')
-        ? value
-        : 'assets/images/$value';
-
-    return Image.asset(
-      assetPath,
+    return Image.network(
+      image!,
       fit: BoxFit.cover,
       errorBuilder: (_, __, ___) => _placeholder(),
     );

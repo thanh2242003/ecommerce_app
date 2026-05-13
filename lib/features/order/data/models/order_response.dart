@@ -100,6 +100,7 @@ class OrderResponse {
 }
 
 class OrderItemPreview {
+  final String productId;
   final String image;
   final String name;
   final int quantity;
@@ -107,6 +108,7 @@ class OrderItemPreview {
   final String? size;
 
   const OrderItemPreview({
+    required this.productId,
     required this.image,
     required this.name,
     required this.quantity,
@@ -133,6 +135,7 @@ class OrderItemPreview {
     }
 
     return OrderItemPreview(
+      productId: readString(['productId', '_id', 'id']),
       image: readString([
         'image',
         'imageUrl',
@@ -158,6 +161,7 @@ class OrderItemPreview {
       'quantity': quantity,
       'color': color,
       'size': size,
+      'productId': productId,
     };
   }
 }

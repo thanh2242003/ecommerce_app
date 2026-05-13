@@ -19,11 +19,7 @@ class ProductImages extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 fit: BoxFit.cover,
-                //anh backend
-                image: //NetworkImage(productEntity.images[index]),
-                AssetImage(
-                  'assets/images/${productEntity.images[0]}',
-                ),
+                image: NetworkImage(productEntity.images[index]),
               ),
             ),
           );

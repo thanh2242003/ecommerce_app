@@ -3,11 +3,58 @@ import 'package:ecommerce_app/core/theme/app_text_styles.dart';
 import 'package:ecommerce_app/features/order/data/models/order_response.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce_app/core/utils/app_number_format.dart';
+import 'package:ecommerce_app/core/utils/date_time_utils.dart';
+import 'package:ecommerce_app/core/widgets/order_product_image.dart';
 
 class HistoryOrderCard extends StatelessWidget {
-  const HistoryOrderCard({super.key, required this.order});
+  const HistoryOrderCard({
+    super.key,
+    required this.order,
+    this.onReviewPressed,
+    this.onReturnPressed,
+    this.onCancelPressed,
+    this.reviewButtonLabel = 'Đánh giá',
+    this.returnButtonLabel = 'Trả hàng',
+    this.cancelButtonLabel = 'Hủy đơn',
+    this.cardPadding = const EdgeInsets.all(14),
+    this.borderRadius = 16.0,
+    this.isTwoButton = true,
+    this.primaryButtonColor,
+    this.secondaryButtonColor,
+    this.cancelButtonColor,
+  });
 
   final OrderResponse order;
+  final VoidCallback? onReviewPressed;
+  final VoidCallback? onReturnPressed;
+  final VoidCallback? onCancelPressed;
+
+  /// Custom label for review button (defaults to 'Đánh giá')
+  final String reviewButtonLabel;
+
+  /// Custom label for return button (defaults to 'Trả hàng')
+  final String returnButtonLabel;
+
+  /// Custom label for cancel button (defaults to 'Hủy đơn')
+  final String cancelButtonLabel;
+
+  /// Custom padding for the card content (defaults to EdgeInsets.all(14))
+  final EdgeInsets cardPadding;
+
+  /// Border radius for the card (defaults to 16.0)
+  final double borderRadius;
+
+  /// Display two buttons (return + review) or one button (only review). Defaults to true
+  final bool isTwoButton;
+
+  /// Custom color for primary button (review). Defaults to AppColors.primaryColor
+  final Color? primaryButtonColor;
+
+  /// Custom color for secondary button (return). Defaults to Colors.white (outlined)
+  final Color? secondaryButtonColor;
+
+  /// Custom color for cancel button. Defaults to Colors.red
+  final Color? cancelButtonColor;
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +70,13 @@ class HistoryOrderCard extends StatelessWidget {
     final variantText = variantParts.isEmpty
         ? 'Phân loại: Chưa có'
         : 'Phân loại: ${variantParts.join(' • ')}';
-    final formattedTime = _formatOrderTime(order.createdAt);
-    final isDelivered = order.status.toLowerCase() == 'delivered';
+    final formattedTime = formatDateTimeShort(order.createdAt);
     final totalText = AppNumberFormat.format(order.totalPrice);
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -40,7 +86,7 @@ class HistoryOrderCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: cardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -52,7 +98,11 @@ class HistoryOrderCard extends StatelessWidget {
                   child: SizedBox(
                     width: 76,
                     height: 76,
-                    child: _OrderProductImage(image: previewItem?.image),
+                    child: OrderProductImage(
+                      image: previewItem?.image,
+                      width: 76,
+                      height: 76,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -126,56 +176,7 @@ class HistoryOrderCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            if (isDelivered)
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        side: const BorderSide(color: Colors.black12),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Trả hàng'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Đánh giá'),
-                    ),
-                  ),
-                ],
-              )
-            else
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text('Hủy đơn'),
-                ),
-              ),
+            _buildActionButtons(),
             const SizedBox(height: 10),
             Text(
               'Mã đơn: #${order.id}',
@@ -189,51 +190,58 @@ class HistoryOrderCard extends StatelessWidget {
       ),
     );
   }
-}
 
-class _OrderProductImage extends StatelessWidget {
-  const _OrderProductImage({this.image});
-
-  final String? image;
-
-  @override
-  Widget build(BuildContext context) {
-    if (image == null || image!.trim().isEmpty) {
-      return _placeholder();
-    }
-
-    final value = image!.trim();
-    if (value.startsWith('http://') || value.startsWith('https://')) {
-      return Image.network(
-        value,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(),
+  Widget _buildActionButtons() {
+    if (!isTwoButton) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: onReviewPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryButtonColor ?? AppColors.primaryColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Text(reviewButtonLabel),
+        ),
       );
     }
 
-    final assetPath = value.startsWith('assets/')
-        ? value
-        : 'assets/images/$value';
-
-    return Image.asset(
-      assetPath,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => _placeholder(),
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: onReturnPressed,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: secondaryButtonColor ?? Colors.black87,
+              side: BorderSide(color: secondaryButtonColor ?? Colors.black12),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(returnButtonLabel),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: onReviewPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryButtonColor ?? AppColors.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(reviewButtonLabel),
+          ),
+        ),
+      ],
     );
   }
-
-  Widget _placeholder() {
-    return Container(
-      color: const Color(0xFFF2F2F2),
-      child: const Icon(Icons.shopping_bag_outlined, color: Colors.black38),
-    );
-  }
-}
-
-String _formatOrderTime(DateTime dateTime) {
-  final local = dateTime.toLocal();
-  String twoDigits(int value) => value.toString().padLeft(2, '0');
-
-  return '${twoDigits(local.day)}/${twoDigits(local.month)}/${local.year} '
-      '${twoDigits(local.hour)}:${twoDigits(local.minute)}';
 }
