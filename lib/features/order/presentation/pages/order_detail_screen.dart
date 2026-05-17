@@ -22,6 +22,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   OrderResponse? _order;
+  bool _isCancelling = false;
 
   @override
   void initState() {
@@ -102,6 +103,31 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   HistoryOrderCard(order: _order!),
+                  const SizedBox(height: 12),
+                  if (_order != null &&
+                      (_order!.status.toLowerCase() == 'pending' ||
+                          _order!.status.toLowerCase() == 'confirmed'))
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                        ),
+                        onPressed: _isCancelling
+                            ? null
+                            : () => _showCancelDialog(),
+                        child: _isCancelling
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Hủy đơn hàng'),
+                      ),
+                    ),
                   const SizedBox(height: 16),
                   Text('Thông tin đơn hàng', style: AppTextStyle.h3),
                   const SizedBox(height: 8),
@@ -184,6 +210,82 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         return 'Đã trả hàng';
       default:
         return status;
+    }
+  }
+
+  void _showCancelDialog() {
+    final TextEditingController reasonCtrl = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Xác nhận hủy đơn'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Bạn có chắc muốn hủy đơn hàng này?'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: reasonCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Lý do (tùy chọn)',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _cancelOrder(
+                  reasonCtrl.text.trim().isEmpty
+                      ? null
+                      : reasonCtrl.text.trim(),
+                );
+              },
+              child: const Text('Xác nhận'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _cancelOrder(String? reason) async {
+    setState(() {
+      _isCancelling = true;
+    });
+
+    try {
+      final repository = OrderRepositoryImpl(
+        apiService: OrderApiService(tokenStorage: TokenStorage()),
+      );
+      final updated = await repository.cancelOrder(
+        widget.orderId,
+        cancelReason: reason,
+      );
+      if (!mounted) return;
+      setState(() {
+        _order = updated;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Hủy đơn thành công')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi hủy đơn: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCancelling = false;
+        });
+      }
     }
   }
 }

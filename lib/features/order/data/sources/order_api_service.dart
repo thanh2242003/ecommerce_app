@@ -132,4 +132,40 @@ class OrderApiService {
     }
     return null;
   }
+
+  Future<OrderResponse> cancelOrder(String id, {String? cancelReason}) async {
+    final uri = Uri.parse('$baseUrl/order/orders/$id/cancel');
+    final response = await http.patch(
+      uri,
+      headers: await _headers(),
+      body: jsonEncode({
+        if (cancelReason != null) 'cancelReason': cancelReason,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      final data = _extractOrderMap(body);
+      if (data != null) {
+        return OrderResponse.fromJson(data);
+      }
+      // If metadata was a direct order
+      if (body is Map<String, dynamic>) {
+        return OrderResponse.fromJson(body);
+      }
+      throw Exception('Cancel order response has no order payload');
+    }
+
+    String message = 'Failed to cancel order';
+    try {
+      final body = jsonDecode(response.body);
+      if (body is Map<String, dynamic>) {
+        message = (body['message'] ?? body['error'] ?? message).toString();
+      }
+    } catch (_) {
+      message = '$message: ${response.body}';
+    }
+
+    throw Exception('$message (status: ${response.statusCode})');
+  }
 }

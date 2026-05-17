@@ -22,4 +22,9 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<OrderResponse> getOrderDetail(String id) async {
     return apiService.getOrderDetail(id);
   }
+
+  @override
+  Future<OrderResponse> cancelOrder(String id, {String? cancelReason}) async {
+    return apiService.cancelOrder(id, cancelReason: cancelReason);
+  }
 }

@@ -5,4 +5,5 @@ abstract class OrderRepository {
   Future<OrderResponse> createOrder(OrderRequest request);
   Future<List<OrderResponse>> getOrders();
   Future<OrderResponse> getOrderDetail(String id);
+  Future<OrderResponse> cancelOrder(String id, {String? cancelReason});
 }
