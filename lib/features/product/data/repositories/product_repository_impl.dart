@@ -7,9 +7,24 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<List<ProductEntity>> getProducts({
     int page = 1,
     int limit = 10,
+    String? categoryId,
+    int? minPrice,
+    int? maxPrice,
+    int? gender,
+    String? sort,
+    String? order,
   }) async {
     try {
-      return await ProductApiService.getProducts(page: page, limit: limit);
+      return await ProductApiService.getProducts(
+        page: page,
+        limit: limit,
+        categoryId: categoryId,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        gender: gender,
+        sort: sort,
+        order: order,
+      );
     } catch (e) {
       return [];
     }

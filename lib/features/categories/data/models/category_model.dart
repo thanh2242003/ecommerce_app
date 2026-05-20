@@ -9,6 +9,7 @@ class CategoryModel extends CategoryEntity {
     required super.isActive,
     super.createdAt,
     super.updatedAt,
+    super.image,
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +21,11 @@ class CategoryModel extends CategoryEntity {
       isActive: json['isActive'] ?? true,
       createdAt: _parseDate(json['createdAt']),
       updatedAt: _parseDate(json['updatedAt']),
+      image: json['image'] is String
+          ? (json['image'] as String)
+          : (json['thumbnail'] is String
+              ? (json['thumbnail'] as String)
+              : ''),
     );
   }
 

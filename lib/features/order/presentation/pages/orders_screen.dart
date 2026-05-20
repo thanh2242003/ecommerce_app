@@ -8,10 +8,12 @@ import 'package:ecommerce_app/core/widgets/basic_app_bar.dart';
 import 'package:ecommerce_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:ecommerce_app/features/cart/domain/entities/cart_item.dart';
 import 'package:ecommerce_app/features/order/data/models/address_model.dart';
+import 'package:ecommerce_app/features/order/data/sources/discount_api_service.dart';
 import 'package:ecommerce_app/features/order/data/sources/address_api_service.dart';
 import 'package:ecommerce_app/features/order/data/sources/order_api_service.dart';
 import 'package:ecommerce_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:ecommerce_app/features/order/presentation/bloc/order_cubit.dart';
+import 'package:ecommerce_app/features/order/presentation/pages/discount_code_picker_screen.dart';
 import 'package:ecommerce_app/features/address/presentation/pages/add_address_screen.dart';
 import 'package:ecommerce_app/features/address/presentation/pages/address_screen.dart';
 import 'package:ecommerce_app/features/address/presentation/bloc/address_cubit.dart';
@@ -61,17 +63,26 @@ class _OrdersView extends StatefulWidget {
 }
 
 class _OrdersViewState extends State<_OrdersView> {
+  final _discountApiService = DiscountApiService(tokenStorage: TokenStorage());
+
   AddressModel? _selectedAddress;
   String? _addressError;
+  String? _appliedDiscountCode;
   bool _isLoadingAddress = false;
+  bool _isCalculatingDiscount = false;
+  int _discountAmount = 0;
 
-  static const int _shippingFee = 20000;
-  static const int _voucherDiscount = 20000;
+  static const int _shippingFee = 0;
 
   @override
   void initState() {
     super.initState();
     _loadDefaultAddress();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _loadDefaultAddress() async {
@@ -122,9 +133,146 @@ class _OrdersViewState extends State<_OrdersView> {
   int get _subTotal =>
       _displayItems.fold(0, (sum, item) => sum + (item.price * item.quantity));
 
+  String? get _commonShopId {
+    final shopIds = _displayItems
+        .map((item) => item.shopId?.trim())
+        .where((shopId) => shopId != null && shopId.isNotEmpty)
+        .cast<String>()
+        .toSet();
+
+    if (shopIds.length == 1) {
+      return shopIds.first;
+    }
+
+    return null;
+  }
+
+  bool get _hasMixedShopIds {
+    final shopIds = _displayItems
+        .map((item) => item.shopId?.trim())
+        .where((shopId) => shopId != null && shopId.isNotEmpty)
+        .toSet();
+
+    return shopIds.length > 1;
+  }
+
+  int get _effectiveDiscountAmount {
+    final maxDiscount = _subTotal + _shippingFee;
+    final discount = _discountAmount;
+    if (discount <= 0) {
+      return 0;
+    }
+    return discount > maxDiscount ? maxDiscount : discount;
+  }
+
   int get _totalPayment {
-    final total = _subTotal + _shippingFee - _voucherDiscount;
+    final total = _subTotal + _shippingFee - _effectiveDiscountAmount;
     return total < 0 ? 0 : total;
+  }
+
+  Future<void> _applyDiscount(String code, {bool silent = false}) async {
+    final normalizedCode = code.trim();
+    if (normalizedCode.isEmpty) {
+      return;
+    }
+
+    if (_displayItems.isEmpty) {
+      if (!silent && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Không có sản phẩm để áp mã giảm giá'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (_hasMixedShopIds) {
+      setState(() {
+        _discountAmount = 0;
+        _appliedDiscountCode = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isCalculatingDiscount = true;
+    });
+
+    try {
+      final result = await _discountApiService.calculateDiscount(
+        codeId: normalizedCode,
+        shopId: _commonShopId,
+        products: _displayItems
+            .map(
+              (item) => <String, dynamic>{
+                'productId': item.productId,
+                'quantity': item.quantity,
+                'price': item.price,
+              },
+            )
+            .toList(),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _appliedDiscountCode = normalizedCode.toUpperCase();
+        _discountAmount = result.discount;
+      });
+
+      if (!silent) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Áp mã thành công, giảm ${AppNumberFormat.format(result.discount)}',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _discountAmount = 0;
+        _appliedDiscountCode = null;
+      });
+
+      if (!silent) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCalculatingDiscount = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _openDiscountPicker() async {
+    final selectedCode = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => DiscountCodePickerScreen(
+          shopId: _commonShopId,
+          currentOrderValue: _subTotal + _shippingFee,
+        ),
+      ),
+    );
+
+    if (selectedCode == null || selectedCode.trim().isEmpty) {
+      return;
+    }
+
+    await _applyDiscount(selectedCode);
   }
 
   void _goToAddressScreen() {
@@ -231,12 +379,20 @@ class _OrdersViewState extends State<_OrdersView> {
                     const SizedBox(height: 10),
                     _SelectedItemsCard(items: _displayItems),
                     const SizedBox(height: 18),
+                    _SectionTitle(title: 'Mã giảm giá'),
+                    const SizedBox(height: 10),
+                    _DiscountCodeCard(
+                      isLoading: _isCalculatingDiscount,
+                      onOpenPicker: _openDiscountPicker,
+                    ),
+                    const SizedBox(height: 18),
                     _SectionTitle(title: 'Chi tiết thanh toán'),
                     const SizedBox(height: 10),
                     _PaymentDetailCard(
                       subTotal: _subTotal,
                       shippingFee: _shippingFee,
-                      voucherDiscount: _voucherDiscount,
+                      voucherDiscount: _effectiveDiscountAmount,
+                      discountCode: _appliedDiscountCode,
                       totalPayment: _totalPayment,
                     ),
                   ],
@@ -286,7 +442,7 @@ class _OrdersViewState extends State<_OrdersView> {
                                 isLoading ||
                                 _isLoadingAddress
                             ? null
-                            : () => _placeOrder(context),
+                            : () async => _placeOrder(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryColor,
                           disabledBackgroundColor: AppColors.primaryColor
@@ -321,7 +477,7 @@ class _OrdersViewState extends State<_OrdersView> {
     );
   }
 
-  void _placeOrder(BuildContext context) {
+  Future<void> _placeOrder(BuildContext context) async {
     final currentAddress = _selectedAddress;
     if (currentAddress == null || currentAddress.id.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -341,6 +497,7 @@ class _OrdersViewState extends State<_OrdersView> {
         widget.product!.quantity,
         widget.product!.variantId,
         _totalPayment,
+        discountCode: _appliedDiscountCode,
       );
       return;
     }
@@ -348,6 +505,64 @@ class _OrdersViewState extends State<_OrdersView> {
     context.read<OrderCubit>().createCartOrder(
       currentAddress.id,
       _totalPayment,
+      discountCode: _appliedDiscountCode,
+    );
+  }
+}
+
+class _DiscountCodeCard extends StatelessWidget {
+  const _DiscountCodeCard({
+    required this.isLoading,
+    required this.onOpenPicker,
+  });
+
+  final bool isLoading;
+  final VoidCallback onOpenPicker;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.lightCard,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Chọn hoặc nhập mã giảm giá trong màn voucher để áp dụng cho đơn hàng.',
+            style: AppTextStyle.withColor(
+              AppTextStyle.bodyMedium,
+              Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton.icon(
+              onPressed: isLoading ? null : onOpenPicker,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+              ),
+              icon: isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.local_offer_outlined),
+              label: const Text('Chọn mã giảm giá'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -752,12 +967,14 @@ class _PaymentDetailCard extends StatelessWidget {
     required this.subTotal,
     required this.shippingFee,
     required this.voucherDiscount,
+    required this.discountCode,
     required this.totalPayment,
   });
 
   final int subTotal;
   final int shippingFee;
   final int voucherDiscount;
+  final String? discountCode;
   final int totalPayment;
 
   @override
@@ -775,7 +992,12 @@ class _PaymentDetailCard extends StatelessWidget {
           const SizedBox(height: 10),
           _PaymentRow(label: 'Phi van chuyen', value: shippingFee),
           const SizedBox(height: 10),
-          _PaymentRow(label: 'Voucher giam gia', value: -voucherDiscount),
+          _PaymentRow(
+            label: discountCode != null && discountCode!.isNotEmpty
+                ? 'Giam gia ($discountCode)'
+                : 'Voucher giam gia',
+            value: -voucherDiscount,
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(height: 1, color: Colors.black12),

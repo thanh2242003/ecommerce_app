@@ -6,6 +6,7 @@ class CategoryEntity {
   final bool isActive;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String image;
 
   const CategoryEntity({
     required this.categoryId,
@@ -15,9 +16,8 @@ class CategoryEntity {
     required this.isActive,
     this.createdAt,
     this.updatedAt,
+    this.image = '',
   });
 
   String get title => name;
-
-  String get image => '';
 }

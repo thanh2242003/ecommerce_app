@@ -1,48 +1,96 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../categories/domain/repositories/categories_repository.dart';
 import '../../../product/domain/repositories/product_repository.dart';
+import '../../../product/domain/entities/product.dart';
 import 'search_state.dart';
 
 class SearchCubit extends Cubit<SearchState> {
   final ProductRepository productRepository;
-  final CategoriesRepository categoryRepository;
 
-  SearchCubit({
-    required this.productRepository,
-    required this.categoryRepository,
-  }) : super(SearchInitial());
+  SearchCubit({required this.productRepository}) : super(SearchInitial());
 
-  // 🏠 Load categories (khi mở màn hình)
-  Future<void> loadCategories() async {
+  Future<void> searchProducts({
+    String keyword = '',
+    String? categoryId,
+    int? minPrice,
+    int? maxPrice,
+    int? gender,
+    String? sort,
+  }) async {
     try {
       emit(SearchLoading());
 
-      final categories = await categoryRepository.getCategories();
+      final normalizedKeyword = keyword.trim();
+      final products = normalizedKeyword.isNotEmpty
+          ? await productRepository.getProductsByTitle(
+              normalizedKeyword,
+              categoryId: categoryId,
+            )
+          : await productRepository.getProducts(
+              page: 1,
+              limit: 20,
+              categoryId: categoryId,
+              minPrice: minPrice,
+              maxPrice: maxPrice,
+              gender: gender,
+              sort: sort,
+            );
 
-      emit(SearchCategoriesLoaded(categories: categories));
-    } catch (e) {
-      emit(SearchError(message: e.toString()));
-    }
-  }
-
-  // 🔍 Search products
-  Future<void> searchProducts(String keyword, {String? categoryId}) async {
-    try {
-      emit(SearchLoading());
-
-      final products = await productRepository.getProductsByTitle(
-        keyword,
-        categoryId: categoryId,
+      emit(
+        SearchProductsLoaded(
+          products: _applyFilters(
+            products,
+            keyword: normalizedKeyword,
+            minPrice: minPrice,
+            maxPrice: maxPrice,
+            gender: gender,
+            sort: sort,
+          ),
+        ),
       );
-
-      emit(SearchProductsLoaded(products: products));
     } catch (e) {
       emit(SearchError(message: e.toString()));
     }
   }
 
-  // 🔄 Clear search → quay lại categories
-  void clearSearch() {
-    loadCategories();
+  void resetResults() {
+    emit(SearchInitial());
+  }
+
+  List<ProductEntity> _applyFilters(
+    List<ProductEntity> products, {
+    required String keyword,
+    int? minPrice,
+    int? maxPrice,
+    int? gender,
+    String? sort,
+  }) {
+    final filteredProducts = products.where((product) {
+      final matchesKeyword =
+          keyword.isEmpty ||
+          product.title.toLowerCase().contains(keyword.toLowerCase());
+      final matchesMinPrice = minPrice == null || product.price >= minPrice;
+      final matchesMaxPrice = maxPrice == null || product.price <= maxPrice;
+      final matchesGender = gender == null || product.gender == gender;
+
+      return matchesKeyword &&
+          matchesMinPrice &&
+          matchesMaxPrice &&
+          matchesGender;
+    }).toList();
+
+    switch (sort) {
+      case 'price_asc':
+        filteredProducts.sort(
+          (left, right) => left.price.compareTo(right.price),
+        );
+        break;
+      case 'price_desc':
+        filteredProducts.sort(
+          (left, right) => right.price.compareTo(left.price),
+        );
+        break;
+    }
+
+    return filteredProducts;
   }
 }

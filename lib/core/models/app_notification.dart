@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class AppNotification {
   AppNotification({
     required this.id,

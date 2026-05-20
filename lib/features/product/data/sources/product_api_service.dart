@@ -20,10 +20,26 @@ class ProductApiService {
   static Future<List<ProductModel>> getProducts({
     int page = 1,
     int limit = 10,
+    String? categoryId,
+    int? minPrice,
+    int? maxPrice,
+    int? gender,
+    String? sort,
+    String? order,
   }) async {
-    final uri = Uri.parse(baseUrl).replace(
-      queryParameters: {'page': page.toString(), 'limit': limit.toString()},
-    );
+    final resolvedSort = _resolveSort(sort, order);
+    final queryParameters = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      if (categoryId != null && categoryId.isNotEmpty) 'categoryId': categoryId,
+      if (minPrice != null) 'price[gte]': minPrice.toString(),
+      if (maxPrice != null) 'price[lte]': maxPrice.toString(),
+      if (gender != null) 'gender': gender.toString(),
+      if (resolvedSort['sort'] != null) 'sort': resolvedSort['sort']!,
+      if (resolvedSort['order'] != null) 'order': resolvedSort['order']!,
+    };
+
+    final uri = Uri.parse(baseUrl).replace(queryParameters: queryParameters);
 
     final response = await http.get(uri, headers: _headers());
 
@@ -33,6 +49,19 @@ class ProductApiService {
       return data.map((e) => ProductModel.fromJson(e)).toList();
     } else {
       throw Exception('Failed to load products: ${response.body}');
+    }
+  }
+
+  static Map<String, String?> _resolveSort(String? sort, String? order) {
+    switch (sort) {
+      case 'price_asc':
+        return {'sort': 'price', 'order': 'asc'};
+      case 'price_desc':
+        return {'sort': 'price', 'order': 'desc'};
+      case 'newest':
+        return {'sort': 'createdAt', 'order': 'desc'};
+      default:
+        return {'sort': sort, 'order': order};
     }
   }
 

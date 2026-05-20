@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/pages/login_screen.dart';
+import '../../domain/entities/user.dart';
+import 'personal_info_screen.dart';
 import '../bloc/user_cubit.dart';
 import '../bloc/user_state.dart';
 import 'package:ecommerce_app/features/auth/presentation/bloc/auth_cubit.dart';
@@ -206,6 +208,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _showPersonalInfoSheet(UserEntity user) async {
+    final session = await _resolveSession();
+    if (session == null) {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PersonalInfoScreen(
+          user: user,
+          token: session.token,
+          userId: session.userId,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -362,7 +385,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
-                        const _MenuItem(title: 'Thông tin cá nhân'),
+                        _MenuItem(
+                          title: 'Thông tin cá nhân',
+                          onTap: () => _showPersonalInfoSheet(user),
+                        ),
                         _MenuItem(
                           title: 'Địa chỉ',
                           onTap: () {
@@ -376,7 +402,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const _MenuItem(title: 'Yêu thích'),
                         const _MenuItem(title: 'Trợ giúp'),
                         const _MenuItem(title: 'Hỗ trợ'),
-                        Spacer(),
+                        const SizedBox(height: 24),
                         GestureDetector(
                           onTap: _handleLogout,
                           child: const Center(
@@ -401,6 +427,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return const SizedBox();
           },
         ),
+      ),
+    );
+  }
+}
+
+class _InfoTile extends StatelessWidget {
+  final String label;
+  final String? value;
+
+  const _InfoTile({required this.label, this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F7F7),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            (value == null || value!.trim().isEmpty) ? 'N/A' : value!,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }

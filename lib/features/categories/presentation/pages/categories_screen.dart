@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/basic_app_bar.dart';
-import '../../../product/presentation/pages/top_selling_screen.dart';
+import '../../../search/presentation/pages/search_screen.dart';
 import '../bloc/categories_cubit.dart';
 import '../bloc/categories_state.dart';
 
@@ -43,8 +43,10 @@ Widget _categories() {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    //product list
-                    builder: (_) => TopSellingScreen(),
+                    builder: (_) => SearchScreen(
+                      initialCategoryId: state.categories[index].categoryId,
+                      initialCategoryTitle: state.categories[index].title,
+                    ),
                   ),
                 );
               },
@@ -65,7 +67,7 @@ Widget _categories() {
                         shape: BoxShape.circle,
                         image: image.isNotEmpty
                             ? DecorationImage(
-                                image: AssetImage("assets/images/$image"),
+                                image: NetworkImage(image),
                                 fit: BoxFit.cover,
                               )
                             : null,

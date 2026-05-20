@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class OrderProductImage extends StatelessWidget {
-  const OrderProductImage({this.image, this.width = 84, this.height = 84});
+  const OrderProductImage({
+    this.image,
+    this.width = 84,
+    this.height = 84,
+    super.key,
+  });
 
   final String? image;
   final double width;

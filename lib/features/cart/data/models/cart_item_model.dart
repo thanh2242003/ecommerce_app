@@ -4,6 +4,7 @@ class CartItemModel extends CartItemEntity {
   const CartItemModel({
     required super.cartItemId,
     required super.productId,
+    super.shopId,
     super.variantId,
     required super.quantity,
     required super.color,
@@ -15,6 +16,7 @@ class CartItemModel extends CartItemEntity {
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
     final product = json['product'];
     String productId = '';
+    String? shopId;
     String productName = '';
     String? productImage;
     String? size;
@@ -23,6 +25,13 @@ class CartItemModel extends CartItemEntity {
 
     if (product is Map<String, dynamic>) {
       productId = product['_id'] ?? '';
+      shopId = _readString(product, const ['shopId', 'shop_id']);
+      if (shopId == null) {
+        final shop = product['shop'];
+        if (shop is Map<String, dynamic>) {
+          shopId = _readString(shop, const ['_id', 'id']);
+        }
+      }
       productName = product['title'] ?? '';
       final images = product['images'];
       if (images is List && images.isNotEmpty) {
@@ -48,6 +57,7 @@ class CartItemModel extends CartItemEntity {
           '${productId}_${json['color'] ?? ''}_${size ?? ''}',
 
       productId: productId,
+        shopId: shopId,
       variantId: variantId,
       quantity: json['quantity'] ?? 0,
       color: json['color'] ?? '',
@@ -94,6 +104,7 @@ class CartItemModel extends CartItemEntity {
     return {
       'cartItemId': cartItemId,
       'productId': productId,
+      'shopId': shopId,
       'variantId': variantId,
       'quantity': quantity,
       'color': color,
@@ -119,5 +130,15 @@ class CartItemModel extends CartItemEntity {
     }
 
     return parts.join('_');
+  }
+
+  static String? _readString(Map<String, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value != null && value.toString().trim().isNotEmpty) {
+        return value.toString();
+      }
+    }
+    return null;
   }
 }

@@ -71,13 +71,10 @@ Widget _categories(BuildContext context, List<CategoryEntity> categories) {
                 color: Colors.white,
                 image: image.isNotEmpty
                     ? DecorationImage(
-                        image: AssetImage("assets/images/$image"),
+                        image: NetworkImage(image),
                         fit: BoxFit.cover,
                       )
-                    : DecorationImage(
-                        image: AssetImage("assets/images/shoes2.jpg"),
-                        fit: BoxFit.cover,
-                      ),
+                    : null,
               ),
             ),
             SizedBox(height: 10),

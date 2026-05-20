@@ -1,4 +1,3 @@
-import '../../../categories/domain/entities/category.dart';
 import '../../../product/domain/entities/product.dart';
 
 abstract class SearchState {}
@@ -6,12 +5,6 @@ abstract class SearchState {}
 class SearchInitial extends SearchState {}
 
 class SearchLoading extends SearchState {}
-
-class SearchCategoriesLoaded extends SearchState {
-  final List<CategoryEntity> categories;
-
-  SearchCategoriesLoaded({required this.categories});
-}
 
 class SearchProductsLoaded extends SearchState {
   final List<ProductEntity> products;

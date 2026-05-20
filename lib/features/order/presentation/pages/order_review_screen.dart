@@ -210,6 +210,8 @@ Future<void> _openReviewComposer(
   OrderResponse order,
   List<UserReviewItem> reviews,
 ) async {
+  final orderReviewCubit = context.read<OrderReviewCubit>();
+
   // Find the first unreviewed product in this order
   final reviewedProductIds = reviews
       .map((review) => review.productId.trim())
@@ -244,15 +246,18 @@ Future<void> _openReviewComposer(
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) {
-      return _ReviewComposerSheet(
-        item: item,
-        onSubmit: (content, rating) async {
-          await context.read<OrderReviewCubit>().submitReview(
-            item,
-            content,
-            rating,
-          );
-        },
+      return BlocProvider.value(
+        value: orderReviewCubit,
+        child: _ReviewComposerSheet(
+          item: item,
+          onSubmit: (content, rating) async {
+            await orderReviewCubit.submitReview(
+              item,
+              content,
+              rating,
+            );
+          },
+        ),
       );
     },
   );

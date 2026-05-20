@@ -32,6 +32,7 @@ import 'package:ecommerce_app/features/notifications/presentation/bloc/notificat
 import 'package:ecommerce_app/features/profile/data/repositories/user_repository_impl.dart';
 import 'package:ecommerce_app/features/profile/data/sources/user_api_service.dart';
 import 'package:ecommerce_app/features/profile/domain/usecases/get_user.dart';
+import 'package:ecommerce_app/features/profile/domain/usecases/update_user.dart';
 import 'package:ecommerce_app/features/profile/presentation/bloc/user_cubit.dart';
 import 'package:ecommerce_app/features/product/data/repositories/product_repository_impl.dart';
 import 'package:ecommerce_app/features/product/domain/usecases/get_latest_products.dart';
@@ -166,8 +167,14 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         BlocProvider(
-          create: (_) =>
-              UserCubit(GetUserUseCase(UserRepositoryImpl(UserApiService()))),
+          create: (_) => UserCubit(
+            getUserUseCase: GetUserUseCase(
+              UserRepositoryImpl(UserApiService()),
+            ),
+            updateUserUseCase: UpdateUserUseCase(
+              UserRepositoryImpl(UserApiService()),
+            ),
+          ),
         ),
         BlocProvider(
           create: (_) => AddressCubit(

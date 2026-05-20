@@ -6,7 +6,6 @@ import '../../../../../core/utils/app_number_format.dart';
 import '../../../../cart/domain/entities/cart_item.dart';
 import '../../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../domain/entities/product.dart';
-import '../../../domain/entities/variant.dart';
 import '../../../../order/presentation/pages/orders_screen.dart';
 import '../bloc/product_color_selection_cubit.dart';
 import '../bloc/product_quantity_cubit.dart';
