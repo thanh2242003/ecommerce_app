@@ -189,11 +189,78 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               );
             },
-            child: HistoryOrderCard(order: order),
+            child: HistoryOrderCard(
+              order: order,
+              onCancelPressed: () => _showCancelDialogFor(order),
+            ),
           );
         },
       ),
     );
+  }
+
+  void _showCancelDialogFor(OrderResponse order) {
+    final TextEditingController reasonCtrl = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Xác nhận hủy đơn'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Bạn có chắc muốn hủy đơn hàng này?'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: reasonCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Lý do (tùy chọn)',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _cancelOrderFromList(
+                  order.id,
+                  reasonCtrl.text.trim().isEmpty
+                      ? null
+                      : reasonCtrl.text.trim(),
+                );
+              },
+              child: const Text('Xác nhận'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _cancelOrderFromList(String orderId, String? reason) async {
+    try {
+      final repository = OrderRepositoryImpl(
+        apiService: OrderApiService(tokenStorage: TokenStorage()),
+      );
+      await repository.cancelOrder(orderId, cancelReason: reason);
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Hủy đơn thành công')));
+      await _loadOrders();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi hủy đơn: ${e.toString()}')),
+      );
+    } finally {
+      // no-op
+    }
   }
 }
 

@@ -192,56 +192,41 @@ class HistoryOrderCard extends StatelessWidget {
   }
 
   Widget _buildActionButtons() {
-    if (!isTwoButton) {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: onReviewPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: primaryButtonColor ?? AppColors.primaryColor,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Text(reviewButtonLabel),
-        ),
-      );
+    // Single-button layout: show a full-width Cancel button when the order
+    // is cancellable; otherwise fall back to Review button if provided.
+    final status = order.status.toLowerCase();
+    final canCancel =
+        status.contains('pending') ||
+        status.contains('wait') ||
+        status.contains('chờ') ||
+        status.contains('cho') ||
+        status.contains('confirmed') ||
+        status.contains('lấy') ||
+        status.contains('lay');
+
+    final showCancel = canCancel && onCancelPressed != null;
+    final showReview = !showCancel && onReviewPressed != null;
+
+    if (!showCancel && !showReview) {
+      return const SizedBox.shrink();
     }
 
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: onReturnPressed,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: secondaryButtonColor ?? Colors.black87,
-              side: BorderSide(color: secondaryButtonColor ?? Colors.black12),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(returnButtonLabel),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: showCancel ? onCancelPressed : onReviewPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: showCancel
+              ? (cancelButtonColor ?? Colors.red)
+              : (primaryButtonColor ?? AppColors.primaryColor),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: onReviewPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryButtonColor ?? AppColors.primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(reviewButtonLabel),
-          ),
-        ),
-      ],
+        child: Text(showCancel ? cancelButtonLabel : reviewButtonLabel),
+      ),
     );
   }
 }
