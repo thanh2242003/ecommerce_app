@@ -251,11 +251,7 @@ Future<void> _openReviewComposer(
         child: _ReviewComposerSheet(
           item: item,
           onSubmit: (content, rating) async {
-            await orderReviewCubit.submitReview(
-              item,
-              content,
-              rating,
-            );
+            await orderReviewCubit.submitReview(item, content, rating);
           },
         ),
       );

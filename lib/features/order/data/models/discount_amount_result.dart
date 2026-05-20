@@ -11,15 +11,18 @@ class DiscountAmountResult {
 
   factory DiscountAmountResult.fromJson(Map<String, dynamic> json) {
     return DiscountAmountResult(
-      totalOrder: _readInt(
-        json,
-        const ['totalOrder', 'totalPriceBeforeDiscount', 'subTotal', 'subtotal'],
-      ),
+      totalOrder: _readInt(json, const [
+        'totalOrder',
+        'totalPriceBeforeDiscount',
+        'subTotal',
+        'subtotal',
+      ]),
       discount: _readInt(json, const ['discount', 'discountAmount']),
-      totalPrice: _readInt(
-        json,
-        const ['totalPrice', 'finalPrice', 'amountAfterDiscount'],
-      ),
+      totalPrice: _readInt(json, const [
+        'totalPrice',
+        'finalPrice',
+        'amountAfterDiscount',
+      ]),
     );
   }
 

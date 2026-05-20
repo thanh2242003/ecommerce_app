@@ -23,9 +23,7 @@ class CategoryModel extends CategoryEntity {
       updatedAt: _parseDate(json['updatedAt']),
       image: json['image'] is String
           ? (json['image'] as String)
-          : (json['thumbnail'] is String
-              ? (json['thumbnail'] as String)
-              : ''),
+          : (json['thumbnail'] is String ? (json['thumbnail'] as String) : ''),
     );
   }
 

@@ -26,8 +26,9 @@ class DiscountListApiService {
       if (userId != null && userId.trim().isNotEmpty) 'userId': userId.trim(),
     };
 
-    final uri = Uri.parse('${ApiConfig.baseUrl}/discount/list_product_code')
-        .replace(queryParameters: queryParameters);
+    final uri = Uri.parse(
+      '${ApiConfig.baseUrl}/discount/list_product_code',
+    ).replace(queryParameters: queryParameters);
 
     final response = await http.get(uri);
 
@@ -57,7 +58,8 @@ class DiscountListApiService {
         return metadata.whereType<Map<String, dynamic>>().toList();
       }
       if (metadata is Map<String, dynamic>) {
-        final dynamic items = metadata['items'] ?? metadata['discounts'] ?? metadata['codes'];
+        final dynamic items =
+            metadata['items'] ?? metadata['discounts'] ?? metadata['codes'];
         if (items is List) {
           return items.whereType<Map<String, dynamic>>().toList();
         }

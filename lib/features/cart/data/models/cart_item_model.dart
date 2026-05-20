@@ -57,7 +57,7 @@ class CartItemModel extends CartItemEntity {
           '${productId}_${json['color'] ?? ''}_${size ?? ''}',
 
       productId: productId,
-        shopId: shopId,
+      shopId: shopId,
       variantId: variantId,
       quantity: json['quantity'] ?? 0,
       color: json['color'] ?? '',
