@@ -6,6 +6,9 @@ import 'package:ecommerce_app/core/widgets/basic_app_bar.dart';
 import 'package:ecommerce_app/features/order/data/models/order_response.dart';
 import 'package:ecommerce_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:ecommerce_app/features/order/data/sources/order_api_service.dart';
+import 'package:ecommerce_app/features/return/data/models/return_request.dart';
+import 'package:ecommerce_app/features/return/data/repositories/return_repository_impl.dart';
+import 'package:ecommerce_app/features/return/data/sources/return_api_service.dart';
 import 'package:ecommerce_app/features/order/presentation/widgets/history_order_card.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +26,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   String? _errorMessage;
   OrderResponse? _order;
   bool _isCancelling = false;
+  bool _isRequestingReturn = false;
+  bool _hasActiveReturn = false;
 
   @override
   void initState() {
@@ -47,6 +52,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       setState(() {
         _order = order;
       });
+      // check whether there's an active return for this order
+      await _checkActiveReturn();
     } catch (e) {
       if (!mounted) {
         return;
@@ -60,6 +67,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _checkActiveReturn() async {
+    try {
+      final repository = ReturnRepositoryImpl(
+        apiService: ReturnApiService(tokenStorage: TokenStorage()),
+      );
+      final list = await repository.getReturns();
+      final found = list.any((r) {
+        if (r.orderId != widget.orderId) return false;
+        return true;
+      });
+      if (!mounted) return;
+      setState(() {
+        _hasActiveReturn = found;
+      });
+    } catch (_) {
+      // ignore errors silently for now
     }
   }
 
@@ -126,6 +152,36 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                 ),
                               )
                             : const Text('Hủy đơn hàng'),
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                  if (_order != null &&
+                      _order!.status.toLowerCase() == 'delivered')
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _hasActiveReturn
+                              ? Colors.grey
+                              : Colors.orangeAccent,
+                        ),
+                        onPressed: (_isRequestingReturn || _hasActiveReturn)
+                            ? null
+                            : () => _showReturnDialog(),
+                        child: _isRequestingReturn
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                _hasActiveReturn
+                                    ? 'Yêu cầu đã gửi'
+                                    : 'Yêu cầu trả hàng',
+                              ),
                       ),
                     ),
                   const SizedBox(height: 16),
@@ -253,6 +309,97 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         );
       },
     );
+  }
+
+  void _showReturnDialog() {
+    final TextEditingController reasonCtrl = TextEditingController();
+    final TextEditingController descCtrl = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Yêu cầu trả hàng'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Bạn đang yêu cầu trả hàng cho đơn này.'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: reasonCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Lý do (ví dụ: defective, changed_mind)',
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: descCtrl,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Mô tả (tùy chọn)',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _createReturn(
+                  reasonCtrl.text.trim().isEmpty
+                      ? 'other'
+                      : reasonCtrl.text.trim(),
+                  descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+                );
+              },
+              child: const Text('Gửi yêu cầu'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _createReturn(String reason, String? description) async {
+    setState(() {
+      _isRequestingReturn = true;
+    });
+
+    try {
+      final repository = ReturnRepositoryImpl(
+        apiService: ReturnApiService(tokenStorage: TokenStorage()),
+      );
+
+      final request = ReturnRequest(
+        orderId: widget.orderId,
+        reason: reason,
+        description: description,
+      );
+
+      await repository.createReturn(request);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Yêu cầu trả hàng đã được gửi')),
+      );
+      // Optionally reload order detail or update UI
+      await _loadOrderDetail();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi khi gửi yêu cầu trả hàng: ${e.toString()}'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRequestingReturn = false;
+        });
+      }
+    }
   }
 
   Future<void> _cancelOrder(String? reason) async {
