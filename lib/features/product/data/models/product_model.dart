@@ -27,6 +27,10 @@ class ProductModel extends ProductEntity {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    final parsedReviews = (json['reviews'] as List? ?? [])
+        .map((e) => ReviewModel.fromJson(e).toEntity())
+        .toList();
+
     return ProductModel(
       productId: json['_id'] ?? '',
       title: json['title'] ?? '',
@@ -41,11 +45,8 @@ class ProductModel extends ProductEntity {
       variants: _parseVariants(json),
       description: json['description'] ?? '',
       ratings: (json['ratings'] as num?)?.toDouble() ?? 0.0,
-      reviews: (json['reviews'] as List? ?? [])
-          .map((e) => ReviewModel.fromJson(e).toEntity())
-          .toList(),
-      totalReviews: json['totalReviews'] ?? 0,
-      //createdAt: DateTime.parse(json['creatAt']),
+      reviews: parsedReviews,
+      totalReviews: json['totalReviews'] ?? parsedReviews.length,
     );
   }
 
