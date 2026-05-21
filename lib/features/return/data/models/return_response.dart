@@ -15,7 +15,8 @@ class ReturnItemResponse {
 
   factory ReturnItemResponse.fromJson(Map<String, dynamic> json) {
     return ReturnItemResponse(
-      productId: (json['productId'] ?? json['product'] ?? json['_id'] ?? '').toString(),
+      productId: (json['productId'] ?? json['product'] ?? json['_id'] ?? '')
+          .toString(),
       variantId: (json['variantId'] ?? '').toString(),
       productName: (json['productName'] ?? json['name'] ?? '').toString(),
       quantity: (json['quantity'] as num?)?.toInt() ?? 0,
@@ -89,11 +90,19 @@ class ReturnResponse {
       reason: (json['reason'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       returnItems: items,
-      returnPrice: json['returnPrice'] is num ? json['returnPrice'] as num : (json['refundAmount'] is num ? json['refundAmount'] as num : 0),
+      returnPrice: json['returnPrice'] is num
+          ? json['returnPrice'] as num
+          : (json['refundAmount'] is num ? json['refundAmount'] as num : 0),
       status: (json['status'] ?? '').toString(),
-      adminId: (json['adminId'] ?? '').toString().isEmpty ? null : (json['adminId'] as String?),
-      approvalReason: (json['approvalReason'] ?? '').toString().isEmpty ? null : (json['approvalReason'] as String?),
-      requestedAt: parseDate(json['requestedAt'] ?? json['createdAt'] ?? json['requested_at']),
+      adminId: (json['adminId'] ?? '').toString().isEmpty
+          ? null
+          : (json['adminId'] as String?),
+      approvalReason: (json['approvalReason'] ?? '').toString().isEmpty
+          ? null
+          : (json['approvalReason'] as String?),
+      requestedAt: parseDate(
+        json['requestedAt'] ?? json['createdAt'] ?? json['requested_at'],
+      ),
       approvedAt: parseDate(json['approvedAt']),
       returnedAt: parseDate(json['returnedAt']),
       completedAt: parseDate(json['completedAt']),

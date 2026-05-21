@@ -41,8 +41,8 @@ class ReturnApiService {
       final body = jsonDecode(response.body);
       final data = body is Map<String, dynamic>
           ? (body['metadata'] is Map<String, dynamic>
-              ? body['metadata'] as Map<String, dynamic>
-              : body)
+                ? body['metadata'] as Map<String, dynamic>
+                : body)
           : <String, dynamic>{};
 
       return ReturnResponse.fromJson(data);
@@ -62,7 +62,9 @@ class ReturnApiService {
   }
 
   Future<List<ReturnResponse>> getReturns({String? status}) async {
-    final uri = Uri.parse('$baseUrl/return/requests${status != null ? '?status=$status' : ''}');
+    final uri = Uri.parse(
+      '$baseUrl/return/requests${status != null ? '?status=$status' : ''}',
+    );
     final response = await http.get(uri, headers: await _headers());
 
     if (response.statusCode == 200) {
@@ -90,11 +92,16 @@ class ReturnApiService {
     throw Exception('Failed to get return detail: ${response.body}');
   }
 
-  Future<ReturnResponse> markReturned(String id, {String? trackingNumber}) async {
+  Future<ReturnResponse> markReturned(
+    String id, {
+    String? trackingNumber,
+  }) async {
     final response = await http.patch(
       Uri.parse('$baseUrl/return/requests/$id/mark-returned'),
       headers: await _headers(),
-      body: jsonEncode({if (trackingNumber != null) 'trackingNumber': trackingNumber}),
+      body: jsonEncode({
+        if (trackingNumber != null) 'trackingNumber': trackingNumber,
+      }),
     );
 
     if (response.statusCode == 200) {
@@ -132,11 +139,14 @@ class ReturnApiService {
         return metadata.whereType<Map<String, dynamic>>().toList();
       }
       if (metadata is Map<String, dynamic>) {
-        final dynamic items = metadata['data'] ?? metadata['items'] ?? metadata['returns'];
-        if (items is List) return items.whereType<Map<String, dynamic>>().toList();
+        final dynamic items =
+            metadata['data'] ?? metadata['items'] ?? metadata['returns'];
+        if (items is List)
+          return items.whereType<Map<String, dynamic>>().toList();
       }
       final dynamic items = body['returns'] ?? body['data'] ?? body['items'];
-      if (items is List) return items.whereType<Map<String, dynamic>>().toList();
+      if (items is List)
+        return items.whereType<Map<String, dynamic>>().toList();
     }
     return const <Map<String, dynamic>>[];
   }

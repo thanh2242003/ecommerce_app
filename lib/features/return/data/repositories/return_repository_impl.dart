@@ -24,7 +24,10 @@ class ReturnRepositoryImpl implements ReturnRepository {
   }
 
   @override
-  Future<ReturnResponse> markReturned(String id, {String? trackingNumber}) async {
+  Future<ReturnResponse> markReturned(
+    String id, {
+    String? trackingNumber,
+  }) async {
     return apiService.markReturned(id, trackingNumber: trackingNumber);
   }
 

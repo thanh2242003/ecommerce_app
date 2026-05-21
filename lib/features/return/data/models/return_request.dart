@@ -5,10 +5,7 @@ class ReturnItemRequest {
   ReturnItemRequest({required this.variantId, required this.quantity});
 
   Map<String, dynamic> toJson() {
-    return {
-      'variantId': variantId,
-      'quantity': quantity,
-    };
+    return {'variantId': variantId, 'quantity': quantity};
   }
 }
 
