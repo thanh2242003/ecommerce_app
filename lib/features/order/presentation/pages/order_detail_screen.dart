@@ -215,10 +215,33 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           _buildInfoRow('Địa chỉ', order.address ?? 'N/A'),
           const SizedBox(height: 8),
           _buildInfoRow('Trạng thái', _translateStatus(order.status)),
+          if (order.paymentMethod.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            _buildInfoRow(
+              'Thanh toán',
+              _translatePaymentMethod(order.paymentMethod),
+            ),
+          ],
+          if (order.paymentStatus.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            _buildInfoRow(
+              'Trạng thái thanh toán',
+              _translatePaymentStatus(order.paymentStatus),
+            ),
+          ],
+          if (order.paymentExpiredAt != null) ...[
+            const SizedBox(height: 8),
+            _buildInfoRow(
+              'Hạn thanh toán',
+              _formatDate(order.paymentExpiredAt!),
+            ),
+          ],
           const Divider(height: 16, thickness: 1),
           _buildInfoRow(
             'Tổng tiền phải trả',
-            AppNumberFormat.format(order.totalPrice),
+            AppNumberFormat.format(
+              order.finalPrice > 0 ? order.finalPrice : order.totalPrice,
+            ),
             isHighlight: true,
           ),
         ],
@@ -256,7 +279,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         return 'Đã xác nhận';
       case 'processing':
         return 'Đang xử lý';
-      case 'shipped':
+      case 'shipping':
         return 'Đang giao hàng';
       case 'delivered':
         return 'Đã giao hàng';
@@ -267,6 +290,44 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       default:
         return status;
     }
+  }
+
+  String _translatePaymentMethod(String method) {
+    switch (method.toLowerCase()) {
+      case 'cod':
+        return 'Thanh toán khi nhận hàng';
+      case 'bank_transfer':
+        return 'Chuyển khoản QR';
+      default:
+        return method;
+    }
+  }
+
+  String _translatePaymentStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'unpaid':
+        return 'Chưa thanh toán';
+      case 'pending':
+        return 'Chờ thanh toán';
+      case 'paid':
+        return 'Đã thanh toán';
+      case 'failed':
+        return 'Thanh toán thất bại';
+      case 'expired':
+        return 'Đã hết hạn';
+      case 'refund_pending':
+        return 'Chờ hoàn tiền';
+      case 'refunded':
+        return 'Đã hoàn tiền';
+      default:
+        return status;
+    }
+  }
+
+  String _formatDate(DateTime value) {
+    final local = value.toLocal();
+    String two(int number) => number.toString().padLeft(2, '0');
+    return '${two(local.hour)}:${two(local.minute)} ${two(local.day)}/${two(local.month)}/${local.year}';
   }
 
   void _showCancelDialog() {

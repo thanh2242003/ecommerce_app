@@ -1,8 +1,18 @@
 class OrderResponse {
   final String id;
   final int totalPrice;
+  final int finalPrice;
   final String status;
+  final String paymentMethod;
+  final String paymentStatus;
   final DateTime createdAt;
+  final DateTime? paymentExpiredAt;
+  final DateTime? paidAt;
+  final String? transactionId;
+  final String? cancelReason;
+  final String? cancelledBy;
+  final DateTime? cancelledAt;
+  final DateTime? refundedAt;
   final int itemCount;
   final List<OrderItemPreview> items;
   final String? receiverName;
@@ -12,8 +22,18 @@ class OrderResponse {
   const OrderResponse({
     required this.id,
     required this.totalPrice,
+    required this.finalPrice,
     required this.status,
+    this.paymentMethod = '',
+    this.paymentStatus = '',
     required this.createdAt,
+    this.paymentExpiredAt,
+    this.paidAt,
+    this.transactionId,
+    this.cancelReason,
+    this.cancelledBy,
+    this.cancelledAt,
+    this.refundedAt,
     this.itemCount = 0,
     this.items = const [],
     this.receiverName,
@@ -50,13 +70,26 @@ class OrderResponse {
       }
     }
 
+    final totalPrice = _readInt(json, const ['totalPrice', 'finalPrice']);
+    final finalPrice = _readInt(json, const ['finalPrice', 'totalPrice']);
+
     return OrderResponse(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
-      totalPrice: (json['totalPrice'] as num?)?.toInt() ?? 0,
+      totalPrice: totalPrice,
+      finalPrice: finalPrice,
       status: (json['status'] ?? '').toString(),
+      paymentMethod: (json['paymentMethod'] ?? '').toString(),
+      paymentStatus: (json['paymentStatus'] ?? '').toString(),
       createdAt:
           DateTime.tryParse((json['createdAt'] ?? '').toString()) ??
           DateTime.now(),
+      paymentExpiredAt: _readDate(json['paymentExpiredAt']),
+      paidAt: _readDate(json['paidAt']),
+      transactionId: _readNullableString(json['transactionId']),
+      cancelReason: _readNullableString(json['cancelReason']),
+      cancelledBy: _readNullableString(json['cancelledBy']),
+      cancelledAt: _readDate(json['cancelledAt']),
+      refundedAt: _readDate(json['refundedAt']),
       itemCount: resolvedItemCount,
       items: parsedItems,
       receiverName: (json['receiverName'] ?? '').toString().isEmpty
@@ -75,8 +108,18 @@ class OrderResponse {
     return {
       'id': id,
       'totalPrice': totalPrice,
+      'finalPrice': finalPrice,
       'status': status,
+      'paymentMethod': paymentMethod,
+      'paymentStatus': paymentStatus,
       'createdAt': createdAt.toIso8601String(),
+      'paymentExpiredAt': paymentExpiredAt?.toIso8601String(),
+      'paidAt': paidAt?.toIso8601String(),
+      'transactionId': transactionId,
+      'cancelReason': cancelReason,
+      'cancelledBy': cancelledBy,
+      'cancelledAt': cancelledAt?.toIso8601String(),
+      'refundedAt': refundedAt?.toIso8601String(),
       'itemCount': itemCount,
       'items': items.map((item) => item.toJson()).toList(),
       'receiverName': receiverName,
@@ -96,6 +139,37 @@ class OrderResponse {
         .whereType<Map<String, dynamic>>()
         .map(OrderItemPreview.fromJson)
         .toList();
+  }
+
+  static int _readInt(Map<String, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value is num) {
+        return value.toInt();
+      }
+      if (value is String) {
+        final parsed = int.tryParse(value);
+        if (parsed != null) {
+          return parsed;
+        }
+      }
+    }
+    return 0;
+  }
+
+  static DateTime? _readDate(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+    return DateTime.tryParse(value.toString());
+  }
+
+  static String? _readNullableString(dynamic value) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty || text == 'null') {
+      return null;
+    }
+    return text;
   }
 }
 

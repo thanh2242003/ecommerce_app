@@ -238,7 +238,9 @@ Future<void> _openReviewComposer(
     orderDate: order.createdAt,
     quantity: unreviewed.quantity,
     variantText: _buildVariantText(unreviewed),
-    totalText: AppNumberFormat.format(order.totalPrice),
+    totalText: AppNumberFormat.format(
+      order.finalPrice > 0 ? order.finalPrice : order.totalPrice,
+    ),
   );
 
   await showModalBottomSheet<void>(

@@ -5,12 +5,14 @@ class OrderRequest {
   final String? variantId;
   final int? quantity;
   final int finalPrice;
+  final String paymentMethod;
   final String? discountCode;
 
   const OrderRequest({
     required this.type,
     required this.addressId,
     required this.finalPrice,
+    this.paymentMethod = 'cod',
     this.discountCode,
     this.productId,
     this.variantId,
@@ -22,6 +24,7 @@ class OrderRequest {
       type: (json['type'] ?? '').toString(),
       addressId: (json['addressId'] ?? '').toString(),
       finalPrice: (json['finalPrice'] as num?)?.toInt() ?? 0,
+      paymentMethod: (json['paymentMethod'] ?? 'cod').toString(),
       discountCode: json['discountCode']?.toString(),
       productId: json['productId']?.toString(),
       variantId: json['variantId']?.toString(),
@@ -34,6 +37,7 @@ class OrderRequest {
       'type': type,
       'addressId': addressId,
       'finalPrice': finalPrice,
+      'paymentMethod': paymentMethod,
       if (discountCode != null && discountCode!.trim().isNotEmpty)
         'discountCode': discountCode,
     };

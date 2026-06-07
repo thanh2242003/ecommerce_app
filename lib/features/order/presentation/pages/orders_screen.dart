@@ -14,6 +14,7 @@ import 'package:ecommerce_app/features/order/data/sources/order_api_service.dart
 import 'package:ecommerce_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:ecommerce_app/features/order/presentation/bloc/order_cubit.dart';
 import 'package:ecommerce_app/features/order/presentation/pages/discount_code_picker_screen.dart';
+import 'package:ecommerce_app/features/order/presentation/pages/sepay_payment_screen.dart';
 import 'package:ecommerce_app/features/address/presentation/pages/add_address_screen.dart';
 import 'package:ecommerce_app/features/address/presentation/pages/address_screen.dart';
 import 'package:ecommerce_app/features/address/presentation/bloc/address_cubit.dart';
@@ -71,6 +72,7 @@ class _OrdersViewState extends State<_OrdersView> {
   bool _isLoadingAddress = false;
   bool _isCalculatingDiscount = false;
   int _discountAmount = 0;
+  String _selectedPaymentMethod = 'cod';
 
   static const int _shippingFee = 0;
 
@@ -310,6 +312,15 @@ class _OrdersViewState extends State<_OrdersView> {
         if (state is OrderSuccess) {
           context.read<CartCubit>().fetchCart(forceRefresh: true);
 
+          if (_selectedPaymentMethod == 'bank_transfer') {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => SepayPaymentScreen(order: state.order),
+              ),
+            );
+            return;
+          }
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Đặt hàng thành công! Mã đơn: ${state.order.id}'),
@@ -384,6 +395,17 @@ class _OrdersViewState extends State<_OrdersView> {
                     _DiscountCodeCard(
                       isLoading: _isCalculatingDiscount,
                       onOpenPicker: _openDiscountPicker,
+                    ),
+                    const SizedBox(height: 18),
+                    _SectionTitle(title: 'Phương thức thanh toán'),
+                    const SizedBox(height: 10),
+                    _PaymentMethodCard(
+                      selectedMethod: _selectedPaymentMethod,
+                      onChanged: (method) {
+                        setState(() {
+                          _selectedPaymentMethod = method;
+                        });
+                      },
                     ),
                     const SizedBox(height: 18),
                     _SectionTitle(title: 'Chi tiết thanh toán'),
@@ -497,6 +519,7 @@ class _OrdersViewState extends State<_OrdersView> {
         widget.product!.quantity,
         widget.product!.variantId,
         _totalPayment,
+        paymentMethod: _selectedPaymentMethod,
         discountCode: _appliedDiscountCode,
       );
       return;
@@ -505,6 +528,7 @@ class _OrdersViewState extends State<_OrdersView> {
     context.read<OrderCubit>().createCartOrder(
       currentAddress.id,
       _totalPayment,
+      paymentMethod: _selectedPaymentMethod,
       discountCode: _appliedDiscountCode,
     );
   }
@@ -560,6 +584,140 @@ class _DiscountCodeCard extends StatelessWidget {
                   : const Icon(Icons.local_offer_outlined),
               label: const Text('Chọn mã giảm giá'),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentMethodCard extends StatelessWidget {
+  const _PaymentMethodCard({
+    required this.selectedMethod,
+    required this.onChanged,
+  });
+
+  final String selectedMethod;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.lightCard,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          _PaymentMethodOption(
+            icon: Icons.payments_outlined,
+            title: 'Thanh toán khi nhận hàng',
+            subtitle: 'Trả tiền mặt sau khi đơn hàng được giao.',
+            value: 'cod',
+            selectedValue: selectedMethod,
+            onChanged: onChanged,
+          ),
+          const Divider(height: 18, color: Colors.black12),
+          _PaymentMethodOption(
+            icon: Icons.qr_code_2_outlined,
+            title: 'Chuyển khoản QR',
+            subtitle: 'Tạo mã SePay và xác nhận tự động sau khi chuyển khoản.',
+            value: 'bank_transfer',
+            selectedValue: selectedMethod,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentMethodOption extends StatelessWidget {
+  const _PaymentMethodOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.selectedValue,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String value;
+  final String selectedValue;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = value == selectedValue;
+
+    return InkWell(
+      onTap: () => onChanged(value),
+      borderRadius: BorderRadius.circular(12),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppColors.primaryColor.withValues(alpha: 0.12)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: isSelected ? AppColors.primaryColor : Colors.black54,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyle.withColor(
+                    AppTextStyle.buttonMedium,
+                    Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: AppTextStyle.withColor(
+                    AppTextStyle.bodySmall,
+                    Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? AppColors.primaryColor : Colors.black26,
+                width: 2,
+              ),
+            ),
+            child: isSelected
+                ? const Center(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: SizedBox(width: 10, height: 10),
+                    ),
+                  )
+                : null,
           ),
         ],
       ),

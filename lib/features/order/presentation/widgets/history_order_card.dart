@@ -71,7 +71,10 @@ class HistoryOrderCard extends StatelessWidget {
         ? 'Phân loại: Chưa có'
         : 'Phân loại: ${variantParts.join(' • ')}';
     final formattedTime = formatDateTimeShort(order.createdAt);
-    final totalText = AppNumberFormat.format(order.totalPrice);
+    final displayPrice = order.finalPrice > 0
+        ? order.finalPrice
+        : order.totalPrice;
+    final totalText = AppNumberFormat.format(displayPrice);
 
     return Container(
       decoration: BoxDecoration(
@@ -175,6 +178,10 @@ class HistoryOrderCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (order.paymentStatus.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _PaymentStatusBadge(status: order.paymentStatus),
+            ],
             const SizedBox(height: 8),
             _buildActionButtons(),
             const SizedBox(height: 10),
@@ -228,5 +235,59 @@ class HistoryOrderCard extends StatelessWidget {
         child: Text(showCancel ? cancelButtonLabel : reviewButtonLabel),
       ),
     );
+  }
+}
+
+class _PaymentStatusBadge extends StatelessWidget {
+  const _PaymentStatusBadge({required this.status});
+
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final normalized = status.toLowerCase();
+    final isPaid = normalized == 'paid';
+    final isProblem = normalized == 'failed' || normalized == 'expired';
+    final color = isPaid
+        ? AppColors.primaryColor
+        : isProblem
+        ? Colors.redAccent
+        : Colors.orangeAccent;
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          _label(normalized),
+          style: AppTextStyle.withColor(AppTextStyle.bodySmall, color),
+        ),
+      ),
+    );
+  }
+
+  String _label(String status) {
+    switch (status) {
+      case 'unpaid':
+        return 'Chua thanh toan';
+      case 'pending':
+        return 'Cho thanh toan';
+      case 'paid':
+        return 'Da thanh toan';
+      case 'failed':
+        return 'Thanh toan that bai';
+      case 'expired':
+        return 'Da het han';
+      case 'refund_pending':
+        return 'Cho hoan tien';
+      case 'refunded':
+        return 'Da hoan tien';
+      default:
+        return status;
+    }
   }
 }

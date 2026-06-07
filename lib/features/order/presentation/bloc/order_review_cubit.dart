@@ -92,7 +92,9 @@ class OrderReviewCubit extends Cubit<OrderReviewState> {
             orderDate: order.createdAt,
             quantity: item.quantity,
             variantText: variantText,
-            totalText: AppNumberFormat.format(order.totalPrice),
+            totalText: AppNumberFormat.format(
+              order.finalPrice > 0 ? order.finalPrice : order.totalPrice,
+            ),
           ),
         );
       }

@@ -13,6 +13,7 @@ class OrderCubit extends Cubit<OrderState> {
   Future<void> createCartOrder(
     String addressId,
     int finalPrice, {
+    String paymentMethod = 'cod',
     String? discountCode,
   }) async {
     emit(const OrderLoading());
@@ -21,6 +22,7 @@ class OrderCubit extends Cubit<OrderState> {
         type: 'cart',
         addressId: addressId,
         finalPrice: finalPrice,
+        paymentMethod: paymentMethod,
         discountCode: discountCode,
       );
       final response = await orderRepository.createOrder(request);
@@ -36,6 +38,7 @@ class OrderCubit extends Cubit<OrderState> {
     int quantity,
     String? variantId,
     int finalPrice, {
+    String paymentMethod = 'cod',
     String? discountCode,
   }) async {
     emit(const OrderLoading());
@@ -47,6 +50,7 @@ class OrderCubit extends Cubit<OrderState> {
         variantId: variantId,
         quantity: quantity,
         finalPrice: finalPrice,
+        paymentMethod: paymentMethod,
         discountCode: discountCode,
       );
       final response = await orderRepository.createOrder(request);
