@@ -182,12 +182,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
         itemBuilder: (_, index) {
           final order = filteredOrders[index];
           return GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
+            onTap: () async {
+              await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => OrderDetailScreen(orderId: order.id),
                 ),
               );
+              if (mounted) {
+                await _loadOrders();
+              }
             },
             child: HistoryOrderCard(
               order: order,

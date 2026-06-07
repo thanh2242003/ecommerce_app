@@ -9,6 +9,7 @@ import 'package:ecommerce_app/features/order/data/sources/order_api_service.dart
 import 'package:ecommerce_app/features/return/data/models/return_request.dart';
 import 'package:ecommerce_app/features/return/data/repositories/return_repository_impl.dart';
 import 'package:ecommerce_app/features/return/data/sources/return_api_service.dart';
+import 'package:ecommerce_app/features/order/presentation/pages/sepay_payment_screen.dart';
 import 'package:ecommerce_app/features/order/presentation/widgets/history_order_card.dart';
 import 'package:flutter/material.dart';
 
@@ -130,6 +131,21 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 children: [
                   HistoryOrderCard(order: _order!),
                   const SizedBox(height: 12),
+                  if (_canResumeQrPayment(_order!))
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () => _openQrPayment(_order!),
+                        icon: const Icon(Icons.qr_code_2_outlined),
+                        label: const Text('Thanh toán'),
+                      ),
+                    ),
+                  if (_canResumeQrPayment(_order!)) const SizedBox(height: 8),
                   if (_order != null &&
                       (_order!.status.toLowerCase() == 'pending' ||
                           _order!.status.toLowerCase() == 'confirmed'))
@@ -196,6 +212,33 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   // (removed unused _buildAddress) Order info rendered by `_buildOrderInfo`
+
+  bool _canResumeQrPayment(OrderResponse order) {
+    if (order.paymentMethod.toLowerCase() != 'bank_transfer') {
+      return false;
+    }
+    if (order.status.toLowerCase() != 'pending') {
+      return false;
+    }
+    if (order.paymentStatus.toLowerCase() != 'pending') {
+      return false;
+    }
+
+    final expiredAt = order.paymentExpiredAt;
+    if (expiredAt == null) {
+      return true;
+    }
+    return expiredAt.toLocal().isAfter(DateTime.now());
+  }
+
+  Future<void> _openQrPayment(OrderResponse order) async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => SepayPaymentScreen(order: order)));
+    if (mounted) {
+      await _loadOrderDetail();
+    }
+  }
 
   Widget _buildOrderInfo(OrderResponse order) {
     return Container(

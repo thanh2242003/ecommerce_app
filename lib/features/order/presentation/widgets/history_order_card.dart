@@ -178,7 +178,8 @@ class HistoryOrderCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (order.paymentStatus.isNotEmpty) ...[
+            if (order.paymentStatus.isNotEmpty &&
+                order.status.toLowerCase() != 'cancelled') ...[
               const SizedBox(height: 8),
               _PaymentStatusBadge(status: order.paymentStatus),
             ],
