@@ -9,6 +9,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/basic_app_bar.dart';
 import '../../../categories/domain/entities/category.dart';
 import '../../../categories/domain/usecases/get_categories_usecase.dart';
+import '../../../product/data/sources/product_api_service.dart';
 import '../../../product/data/repositories/product_repository_impl.dart';
 import '../../../product/presentation/widgets/product_gridview.dart';
 import '../bloc/search_cubit.dart';
@@ -29,12 +30,20 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
+const List<ProductAgeRangeOption> _fallbackAgeRanges = [
+  ProductAgeRangeOption(value: '0-1', label: '0-1'),
+  ProductAgeRangeOption(value: '1-3', label: '1-3'),
+  ProductAgeRangeOption(value: '3-6', label: '3-6'),
+  ProductAgeRangeOption(value: '6+', label: '6+'),
+];
+
 class _SearchScreenState extends State<SearchScreen> {
   late final SearchCubit _searchCubit;
   late final TextEditingController _searchController;
   late final GetCategoriesUseCase _getCategoriesUseCase;
 
   List<CategoryEntity> _categories = [];
+  List<ProductAgeRangeOption> _ageRanges = const [];
   bool _isCategoriesLoading = false;
 
   String? _selectedCategoryId;
@@ -42,6 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
   int? _selectedMinPrice;
   int? _selectedMaxPrice;
   int? _selectedGender;
+  String? _selectedAgeRange;
   String? _selectedSort;
 
   @override
@@ -57,6 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
     _selectedCategoryTitle = widget.initialCategoryTitle;
 
     _loadCategories();
+    _loadAgeRanges();
 
     if (_hasActiveFilters) {
       Future.microtask(_applyFilters);
@@ -76,6 +87,7 @@ class _SearchScreenState extends State<SearchScreen> {
         _selectedMinPrice != null ||
         _selectedMaxPrice != null ||
         _selectedGender != null ||
+        _selectedAgeRange != null ||
         _selectedSort != null;
   }
 
@@ -97,6 +109,19 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  Future<void> _loadAgeRanges() async {
+    try {
+      final ageRanges = await ProductApiService.getAgeRanges();
+      if (!mounted) return;
+      setState(() {
+        _ageRanges = ageRanges.isEmpty ? _fallbackAgeRanges : ageRanges;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _ageRanges = _fallbackAgeRanges);
+    }
+  }
+
   Future<void> _applyFilters() async {
     await _searchCubit.searchProducts(
       keyword: _searchController.text,
@@ -104,6 +129,7 @@ class _SearchScreenState extends State<SearchScreen> {
       minPrice: _selectedMinPrice,
       maxPrice: _selectedMaxPrice,
       gender: _selectedGender,
+      ageRange: _selectedAgeRange,
       sort: _selectedSort,
     );
   }
@@ -156,6 +182,17 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<void> _selectGender(BuildContext sheetContext, int? gender) async {
     setState(() {
       _selectedGender = gender;
+    });
+    Navigator.pop(sheetContext);
+    await _applyFilters();
+  }
+
+  Future<void> _selectAgeRange(
+    BuildContext sheetContext,
+    String? ageRange,
+  ) async {
+    setState(() {
+      _selectedAgeRange = ageRange;
     });
     Navigator.pop(sheetContext);
     await _applyFilters();
@@ -241,6 +278,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   label: _genderLabel(),
                   selected: _selectedGender != null,
                   onTap: _showGenderSelector,
+                ),
+                const SizedBox(width: 8),
+                _buildFilterChip(
+                  label: _ageRangeLabel(),
+                  selected: _selectedAgeRange != null,
+                  onTap: _showAgeRangeSelector,
                 ),
                 const SizedBox(width: 8),
                 _buildFilterChip(
@@ -373,6 +416,22 @@ class _SearchScreenState extends State<SearchScreen> {
       default:
         return 'Giới tính';
     }
+  }
+
+  String _ageRangeLabel() {
+    if (_selectedAgeRange == null) {
+      return 'Do tuoi';
+    }
+
+    return _ageRanges
+        .firstWhere(
+          (ageRange) => ageRange.value == _selectedAgeRange,
+          orElse: () => ProductAgeRangeOption(
+            value: _selectedAgeRange!,
+            label: _selectedAgeRange!,
+          ),
+        )
+        .label;
   }
 
   String _sortLabel() {
@@ -511,6 +570,45 @@ class _SearchScreenState extends State<SearchScreen> {
                 onTap: () => _selectGender(sheetContext, 3),
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showAgeRangeSelector() async {
+    final ageRanges = _ageRanges.isEmpty ? _fallbackAgeRanges : _ageRanges;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: ListView.separated(
+            shrinkWrap: true,
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return ListTile(
+                  title: const Text('Tat ca'),
+                  trailing: _selectedAgeRange == null
+                      ? const Icon(Icons.check, color: AppColors.primaryColor)
+                      : null,
+                  onTap: () => _selectAgeRange(sheetContext, null),
+                );
+              }
+
+              final ageRange = ageRanges[index - 1];
+              final isSelected = ageRange.value == _selectedAgeRange;
+              return ListTile(
+                title: Text(ageRange.label),
+                trailing: isSelected
+                    ? const Icon(Icons.check, color: AppColors.primaryColor)
+                    : null,
+                onTap: () => _selectAgeRange(sheetContext, ageRange.value),
+              );
+            },
+            separatorBuilder: (context, index) => const Divider(height: 1),
+            itemCount: ageRanges.length + 1,
           ),
         );
       },

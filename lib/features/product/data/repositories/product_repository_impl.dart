@@ -11,6 +11,7 @@ class ProductRepositoryImpl implements ProductRepository {
     int? minPrice,
     int? maxPrice,
     int? gender,
+    String? ageRange,
     String? sort,
     String? order,
   }) async {
@@ -22,6 +23,7 @@ class ProductRepositoryImpl implements ProductRepository {
         minPrice: minPrice,
         maxPrice: maxPrice,
         gender: gender,
+        ageRange: ageRange,
         sort: sort,
         order: order,
       );
@@ -55,12 +57,14 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<List<ProductEntity>> getProductsByTitle(
     String title, {
     String? categoryId,
+    String? ageRange,
   }) async {
     try {
       if (title.isEmpty) return [];
       return await ProductApiService.searchProducts(
         title,
         categoryId: categoryId,
+        ageRange: ageRange,
       );
     } catch (e) {
       return [];

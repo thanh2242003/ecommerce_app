@@ -24,6 +24,7 @@ class ProductApiService {
     int? minPrice,
     int? maxPrice,
     int? gender,
+    String? ageRange,
     String? sort,
     String? order,
   }) async {
@@ -35,6 +36,7 @@ class ProductApiService {
       if (minPrice != null) 'price[gte]': minPrice.toString(),
       if (maxPrice != null) 'price[lte]': maxPrice.toString(),
       if (gender != null) 'gender': gender.toString(),
+      if (ageRange != null && ageRange.isNotEmpty) 'ageRange': ageRange,
       if (resolvedSort['sort'] != null) 'sort': resolvedSort['sort']!,
       if (resolvedSort['order'] != null) 'order': resolvedSort['order']!,
     };
@@ -85,6 +87,7 @@ class ProductApiService {
   static Future<List<ProductModel>> searchProducts(
     String keyword, {
     String? categoryId,
+    String? ageRange,
   }) async {
     final tokenStorage = TokenStorage();
     final userId = await tokenStorage.getUserId();
@@ -93,6 +96,7 @@ class ProductApiService {
     final queryParameters = <String, String>{
       'q': keyword,
       if (categoryId != null && categoryId.isNotEmpty) 'categoryId': categoryId,
+      if (ageRange != null && ageRange.isNotEmpty) 'ageRange': ageRange,
     };
 
     final response = await http.get(
@@ -123,5 +127,41 @@ class ProductApiService {
     } else {
       throw Exception('Top selling failed: ${response.body}');
     }
+  }
+
+  static Future<List<ProductAgeRangeOption>> getAgeRanges() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/age-ranges'),
+      headers: _headers(),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['metadata'] as List;
+
+      return data
+          .map(
+            (item) => ProductAgeRangeOption.fromJson(
+              Map<String, dynamic>.from(item as Map),
+            ),
+          )
+          .toList();
+    } else {
+      throw Exception('Failed to load age ranges: ${response.body}');
+    }
+  }
+}
+
+class ProductAgeRangeOption {
+  const ProductAgeRangeOption({required this.value, required this.label});
+
+  final String value;
+  final String label;
+
+  factory ProductAgeRangeOption.fromJson(Map<String, dynamic> json) {
+    final value = json['value']?.toString() ?? '';
+    return ProductAgeRangeOption(
+      value: value,
+      label: json['label']?.toString() ?? value,
+    );
   }
 }

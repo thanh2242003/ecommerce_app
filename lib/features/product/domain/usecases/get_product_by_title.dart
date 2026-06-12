@@ -6,7 +6,15 @@ class GetProductsByTitleUseCase {
 
   GetProductsByTitleUseCase(this.repository);
 
-  Future<List<ProductEntity>> call(String title, {String? categoryId}) async {
-    return await repository.getProductsByTitle(title, categoryId: categoryId);
+  Future<List<ProductEntity>> call(
+    String title, {
+    String? categoryId,
+    String? ageRange,
+  }) async {
+    return await repository.getProductsByTitle(
+      title,
+      categoryId: categoryId,
+      ageRange: ageRange,
+    );
   }
 }

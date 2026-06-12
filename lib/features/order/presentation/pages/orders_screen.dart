@@ -530,6 +530,15 @@ class _OrdersViewState extends State<_OrdersView> {
       _totalPayment,
       paymentMethod: _selectedPaymentMethod,
       discountCode: _appliedDiscountCode,
+      selectedCartItems: _displayItems
+          .where((item) => item.variantId != null && item.variantId!.isNotEmpty)
+          .map(
+            (item) => <String, String>{
+              'productId': item.productId,
+              'variantId': item.variantId!,
+            },
+          )
+          .toList(),
     );
   }
 }

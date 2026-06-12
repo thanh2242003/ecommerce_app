@@ -8,6 +8,7 @@ abstract class ProductRepository {
     int? minPrice,
     int? maxPrice,
     int? gender,
+    String? ageRange,
     String? sort,
     String? order,
   });
@@ -18,6 +19,7 @@ abstract class ProductRepository {
   Future<List<ProductEntity>> getProductsByTitle(
     String title, {
     String? categoryId,
+    String? ageRange,
   });
   //Future<List<ProductEntity>> getNewProducts({int limit = 10});
 }

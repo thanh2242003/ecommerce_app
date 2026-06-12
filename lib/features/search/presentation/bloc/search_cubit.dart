@@ -14,6 +14,7 @@ class SearchCubit extends Cubit<SearchState> {
     int? minPrice,
     int? maxPrice,
     int? gender,
+    String? ageRange,
     String? sort,
   }) async {
     try {
@@ -24,6 +25,7 @@ class SearchCubit extends Cubit<SearchState> {
           ? await productRepository.getProductsByTitle(
               normalizedKeyword,
               categoryId: categoryId,
+              ageRange: ageRange,
             )
           : await productRepository.getProducts(
               page: 1,
@@ -32,6 +34,7 @@ class SearchCubit extends Cubit<SearchState> {
               minPrice: minPrice,
               maxPrice: maxPrice,
               gender: gender,
+              ageRange: ageRange,
               sort: sort,
             );
 
@@ -43,6 +46,7 @@ class SearchCubit extends Cubit<SearchState> {
             minPrice: minPrice,
             maxPrice: maxPrice,
             gender: gender,
+            ageRange: ageRange,
             sort: sort,
           ),
         ),
@@ -62,6 +66,7 @@ class SearchCubit extends Cubit<SearchState> {
     int? minPrice,
     int? maxPrice,
     int? gender,
+    String? ageRange,
     String? sort,
   }) {
     final filteredProducts = products.where((product) {
@@ -71,11 +76,16 @@ class SearchCubit extends Cubit<SearchState> {
       final matchesMinPrice = minPrice == null || product.price >= minPrice;
       final matchesMaxPrice = maxPrice == null || product.price <= maxPrice;
       final matchesGender = gender == null || product.gender == gender;
+      final matchesAgeRange =
+          ageRange == null ||
+          ageRange.isEmpty ||
+          product.ageRange == ageRange;
 
       return matchesKeyword &&
           matchesMinPrice &&
           matchesMaxPrice &&
-          matchesGender;
+          matchesGender &&
+          matchesAgeRange;
     }).toList();
 
     switch (sort) {

@@ -396,6 +396,7 @@ class NotificationService {
       colors: _parseColors(data['colors']),
       discountedPrice: _intValue(data['discountedPrice']),
       gender: _intValue(data['gender']),
+      ageRange: _stringValue(data['ageRange']),
       images: _parseStringList(data['images']),
       price: _intValue(data['price']),
       sizes: _parseStringList(data['sizes']),

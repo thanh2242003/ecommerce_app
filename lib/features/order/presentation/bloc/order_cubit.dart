@@ -15,6 +15,7 @@ class OrderCubit extends Cubit<OrderState> {
     int finalPrice, {
     String paymentMethod = 'cod',
     String? discountCode,
+    List<Map<String, String>>? selectedCartItems,
   }) async {
     emit(const OrderLoading());
     try {
@@ -24,6 +25,7 @@ class OrderCubit extends Cubit<OrderState> {
         finalPrice: finalPrice,
         paymentMethod: paymentMethod,
         discountCode: discountCode,
+        selectedCartItems: selectedCartItems,
       );
       final response = await orderRepository.createOrder(request);
       emit(OrderSuccess(response));

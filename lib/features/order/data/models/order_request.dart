@@ -7,6 +7,7 @@ class OrderRequest {
   final int finalPrice;
   final String paymentMethod;
   final String? discountCode;
+  final List<Map<String, String>>? selectedCartItems;
 
   const OrderRequest({
     required this.type,
@@ -17,6 +18,7 @@ class OrderRequest {
     this.productId,
     this.variantId,
     this.quantity,
+    this.selectedCartItems,
   });
 
   factory OrderRequest.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class OrderRequest {
       productId: json['productId']?.toString(),
       variantId: json['variantId']?.toString(),
       quantity: (json['quantity'] as num?)?.toInt(),
+      selectedCartItems: _readSelectedCartItems(json['selectedCartItems']),
     );
   }
 
@@ -51,7 +54,32 @@ class OrderRequest {
     if (quantity != null) {
       map['quantity'] = quantity;
     }
+    if (selectedCartItems != null && selectedCartItems!.isNotEmpty) {
+      map['selectedCartItems'] = selectedCartItems;
+    }
 
     return map;
+  }
+
+  static List<Map<String, String>>? _readSelectedCartItems(dynamic value) {
+    if (value is! List) {
+      return null;
+    }
+
+    return value
+        .whereType<Map>()
+        .map((item) {
+          final productId = item['productId']?.toString();
+          final variantId = item['variantId']?.toString();
+          if (productId == null || variantId == null) {
+            return null;
+          }
+          return <String, String>{
+            'productId': productId,
+            'variantId': variantId,
+          };
+        })
+        .whereType<Map<String, String>>()
+        .toList();
   }
 }
